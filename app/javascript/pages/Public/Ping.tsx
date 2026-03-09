@@ -53,68 +53,86 @@ const PING_PARAMETERS: PingParameter[] = [
   { name: "card", description: "Payment instrument details" },
 ];
 
+const PingNavigation = () => (
+  <div
+    role="navigation"
+    aria-label="Ping Reference"
+    className="lg:sticky lg:top-8 lg:h-full lg:max-h-[calc(100vh-4rem)] lg:overflow-auto"
+  >
+    <menu className="grid gap-3">
+      <li>
+        <a href="#ping-intro">Introduction</a>
+      </li>
+      <li>
+        <a href="#ping-parameters">Parameters</a>
+      </li>
+    </menu>
+  </div>
+);
+
 const PublicPing = () => (
   <Layout currentPage="ping">
     <main className="p-4 md:p-8">
       <div>
-        <article className="flex flex-col gap-8">
-          <header>
-            <h1 className="text-3xl font-bold">Gumroad Ping</h1>
-          </header>
-          <div className="flex flex-col gap-4">
-            <p>Gumroad Ping is a simple alert that notifies you in real time whenever one of your products is purchased.</p>
+        <div className="grid grid-cols-1 items-start gap-x-16 gap-y-8 lg:grid-cols-[var(--grid-cols-sidebar)]">
+          <PingNavigation />
+          <article className="grid gap-8">
+            <section id="ping-intro" className="flex flex-col gap-4">
+              <h2 className="text-xl font-bold">Gumroad Ping</h2>
+              <p>Gumroad Ping is a simple alert that notifies you in real time whenever one of your products is purchased.</p>
 
-            <div>
-              <p>For example, you can use Gumroad Ping to:</p>
-              <ul className="ml-6 mt-2 list-disc space-y-1">
-                <li>Thank the purchaser publicly on your website.</li>
-                <li>Generate QR codes.</li>
-                <li>Create an account for them on your own platform.</li>
-              </ul>
-            </div>
+              <div>
+                <p>For example, you can use Gumroad Ping to:</p>
+                <ul className="ml-6 mt-2 list-disc space-y-1">
+                  <li>Thank the purchaser publicly on your website.</li>
+                  <li>Generate QR codes.</li>
+                  <li>Create an account for them on your own platform.</li>
+                </ul>
+              </div>
 
-            <p>
-              The ping comes in the form of an HTTP POST request to the URL that you specify in your{" "}
-              <Link href={Routes.settings_advanced_path()}>account settings</Link>.
-              The payload is x-www-form-urlencoded. If your endpoint does not return a 200 HTTP status code, the POST is retried once an hour for up to 3 hours.
-            </p>
+              <p>
+                The ping comes in the form of an HTTP POST request to the URL that you specify in your{" "}
+                <Link href={Routes.settings_advanced_path()}>account settings</Link>.
+                The payload is x-www-form-urlencoded. If your endpoint does not return a 200 HTTP status code, the POST is retried once an hour for up to 3 hours.
+              </p>
 
-            <p>In each request, Gumroad sends the parameters in the table below.</p>
+              <p>In each request, Gumroad sends the parameters in the table below.</p>
 
-            <p>
-              You can also use our API and{" "}
-              <Link href={`${Routes.api_path()}#resource-subscriptions`}>subscribe</Link>
-              {" "}to be notified of future sales.
-            </p>
+              <p>
+                You can also use our API and{" "}
+                <Link href={`${Routes.api_path()}#resource-subscriptions`}>subscribe</Link>
+                {" "}to be notified of future sales.
+              </p>
 
-            <p>You can pass unique URL parameters by adding them to any Gumroad product URL. If passed, they will show up in the url_params dictionary as seen below.</p>
+              <p>You can pass unique URL parameters by adding them to any Gumroad product URL. If passed, they will show up in the url_params dictionary as seen below.</p>
 
-            <p>For security reasons we highly recommend that you use an HTTPS endpoint as your URL.</p>
-          </div>
+              <p>For security reasons we highly recommend that you use an HTTPS endpoint as your URL.</p>
+            </section>
 
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Parameter</TableHead>
-                  <TableHead>Description</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {PING_PARAMETERS.map((param) => (
-                  <TableRow key={param.name}>
-                    <TableCell className="font-mono text-sm font-medium">
-                      {param.name}
-                    </TableCell>
-                    <TableCell>
-                      {param.description}
-                    </TableCell>
+            <section id="ping-parameters" className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Parameter</TableHead>
+                    <TableHead>Description</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </article>
+                </TableHeader>
+                <TableBody>
+                  {PING_PARAMETERS.map((param) => (
+                    <TableRow key={param.name}>
+                      <TableCell className="font-mono text-sm font-medium">
+                        {param.name}
+                      </TableCell>
+                      <TableCell>
+                        {param.description}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </section>
+          </article>
+        </div>
       </div>
     </main>
   </Layout>
