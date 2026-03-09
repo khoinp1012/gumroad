@@ -16,6 +16,25 @@ describe PublicController, type: :controller, inertia: true do
       expect(controller.send(:page_title)).to eq("API")
       expect(inertia).to render_component("Public/Api")
     end
+
+    context "when not signed in" do
+      it "uses the public_inertia layout with header and footer" do
+        get :api
+        expect(response).to be_successful
+        expect(response.body).to include("data-toggle=\"mobile-menu\"")
+        expect(response.body).to include("Ⓒ Gumroad, Inc.")
+      end
+    end
+
+    context "when signed in" do
+      before { sign_in create(:user) }
+
+      it "uses the inertia layout without public header and footer" do
+        get :api
+        expect(response).to be_successful
+        expect(response.body).not_to include("Ⓒ Gumroad, Inc.")
+      end
+    end
   end
 
   describe "GET ping", inertia: true do
@@ -24,6 +43,25 @@ describe PublicController, type: :controller, inertia: true do
       expect(response).to be_successful
       expect(controller.send(:page_title)).to eq("Ping")
       expect(inertia).to render_component("Public/Ping")
+    end
+
+    context "when not signed in" do
+      it "uses the public_inertia layout with header and footer" do
+        get :ping
+        expect(response).to be_successful
+        expect(response.body).to include("data-toggle=\"mobile-menu\"")
+        expect(response.body).to include("Ⓒ Gumroad, Inc.")
+      end
+    end
+
+    context "when signed in" do
+      before { sign_in create(:user) }
+
+      it "uses the inertia layout without public header and footer" do
+        get :ping
+        expect(response).to be_successful
+        expect(response.body).not_to include("Ⓒ Gumroad, Inc.")
+      end
     end
   end
 
@@ -79,6 +117,23 @@ describe PublicController, type: :controller, inertia: true do
         expect(response).to be_successful
         expect(inertia).to render_component("Public/Widgets")
         expect(controller.send(:page_title)).to eq("Widgets")
+      end
+
+      it "uses the inertia layout without public header and footer" do
+        get :widgets
+
+        expect(response).to be_successful
+        expect(response.body).not_to include("Ⓒ Gumroad, Inc.")
+      end
+    end
+
+    context "when not signed in" do
+      it "uses the public_inertia layout with header and footer" do
+        get :widgets
+
+        expect(response).to be_successful
+        expect(response.body).to include("data-toggle=\"mobile-menu\"")
+        expect(response.body).to include("Ⓒ Gumroad, Inc.")
       end
     end
   end

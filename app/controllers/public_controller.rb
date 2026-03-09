@@ -6,8 +6,9 @@ class PublicController < ApplicationController
   before_action { opt_out_of_header(:csp) } # for the use of external JS on public pages
 
   before_action :set_on_public_page
+  before_action :set_hide_layouts, only: [:widgets, :ping, :api], unless: :user_signed_in?
 
-  layout "inertia", only: [:widgets, :ping, :api, :charge, :license_key_lookup]
+  layout :resolve_public_layout, only: [:widgets, :ping, :api, :charge, :license_key_lookup]
 
   def home
     redirect_to user_signed_in? ? after_sign_in_path_for(logged_in_user) : login_path
@@ -76,5 +77,17 @@ class PublicController < ApplicationController
   private
     def set_on_public_page
       @body_class = "public"
+    end
+
+    def resolve_public_layout
+      if [:widgets, :ping, :api].include?(action_name.to_sym) && !user_signed_in?
+        "public_inertia"
+      else
+        "inertia"
+      end
+    end
+
+    def set_hide_layouts
+      @hide_layouts = true
     end
 end
