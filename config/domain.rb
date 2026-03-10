@@ -63,7 +63,7 @@ configuration_by_env = {
     third_party_analytics_domain: "localhost:3000",
     valid_request_hosts: ["localhost", "localhost:3000", "127.0.0.1"],
     valid_api_request_hosts: ["localhost:3000"],
-    valid_discover_host: "localhost:3000",
+    valid_discover_host: "localhost",
     valid_cors_origins: [],
     internal_gumroad_domain: "localhost",
     default_email_domain: "staging.gumroad.com",
