@@ -36,6 +36,7 @@ class SafeRedirectPathService
     end
 
     def domain
-      ROOT_DOMAIN
+      # Strip port from ROOT_DOMAIN because url.host returns host without port
+      URI("#{PROTOCOL}://#{ROOT_DOMAIN}").host
     end
 end

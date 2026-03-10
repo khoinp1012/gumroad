@@ -62,7 +62,7 @@ development:
     # You may use `https: true` instead but notice that it is deprecated in favor of `server: https`
     # Ensure only one of these entries is set.
     server: http
-    host: localhost
+    host: gumroad.localhost
     port: 3035
     # Hot Module Replacement updates modules while the application is running without a full reload
     # Used instead of the `hot` key in https://webpack.js.org/configuration/dev-server/#devserverhot
