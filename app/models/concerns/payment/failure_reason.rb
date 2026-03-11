@@ -135,10 +135,7 @@ module Payment::FailureReason
       reason: "the bank no longer supports payouts to this card",
       solution: "Change the card used for payouts",
     },
-    "negative_stripe_balance" => {
-      reason: "the Stripe account has a negative balance, likely from a previously returned payout",
-      solution: "Contact Gumroad Support to resolve the negative balance on the Stripe account",
-    },
+
   }
   private_constant :STRIPE_FAILURE_SOLUTIONS
 

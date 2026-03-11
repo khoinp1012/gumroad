@@ -6,6 +6,10 @@ describe StripePayoutProcessor, :vcr do
   include CurrencyHelper
   include StripeChargesHelper
 
+  before do
+    allow(described_class).to receive(:stripe_balance_negative?).and_return(false)
+  end
+
   describe "is_user_payable" do
     before do
       # sufficient balance for US USD payout
@@ -305,6 +309,7 @@ describe StripePayoutProcessor, :vcr do
     let(:merchant_account) { create(:merchant_account_stripe_canada, user:) }
 
     before do
+      allow(described_class).to receive(:stripe_balance_negative?).and_call_original
       user
       bank_account
       merchant_account
@@ -3501,6 +3506,7 @@ describe StripePayoutProcessor, :vcr do
   end
 
   describe ".stripe_balance_negative?" do
+    before { allow(described_class).to receive(:stripe_balance_negative?).and_call_original }
     let(:stripe_account_id) { "acct_123" }
 
     it "returns true when the available balance is negative for the given currency" do

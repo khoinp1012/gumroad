@@ -142,12 +142,13 @@ class StripePayoutProcessor
     # If negative for the payout currency, skip the payout to avoid the
     # transfer-fail-reverse cycle that repeats every payout period.
     if stripe_balance_negative?(payment.stripe_connect_account_id, payment.currency)
+      failed = true
       payout_date = Time.current.to_fs(:formatted_date_full_month)
       payment.user.add_payout_note(
         content: "Payout on #{payout_date} was skipped because the Stripe account has a negative balance. " \
                  "This usually means a previous payout was returned and Stripe is recovering the funds."
       )
-      payment.mark_failed!(Payment::FailureReason::NEGATIVE_STRIPE_BALANCE)
+      payment.failure_reason = Payment::FailureReason::NEGATIVE_STRIPE_BALANCE
       return ["Stripe account has a negative balance for #{payment.currency}"]
     end
 
@@ -205,7 +206,7 @@ class StripePayoutProcessor
     Bugsnag.notify(e)
     [e.message]
   ensure
-    payment.mark_failed! if failed
+    payment.mark_failed!(payment.failure_reason) if failed
   end
 
   def self.enqueue_payments(user_ids, date_string, payout_type: Payouts::PAYOUT_TYPE_STANDARD)
@@ -491,9 +492,13 @@ class StripePayoutProcessor
   # Returns true if the Stripe connected account's available balance
   # is negative for the given currency. This typically happens when a
   # previous payout was returned and Stripe debited the account.
+  # Fails open (returns false) on API errors so transient issues don't block payouts.
   def self.stripe_balance_negative?(stripe_connect_account_id, currency)
     balance = Stripe::Balance.retrieve({}, { stripe_account: stripe_connect_account_id })
     available_entry = balance.available.find { |entry| entry["currency"] == currency }
     available_entry.present? && available_entry["amount"] < 0
+  rescue Stripe::StripeError => e
+    Rails.logger.error("[StripePayoutProcessor] Failed to check balance for #{stripe_connect_account_id}: #{e.message}")
+    false
   end
 end
