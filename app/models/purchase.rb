@@ -1032,7 +1032,6 @@ class Purchase < ApplicationRecord
   def has_content?
     return false if url_redirect.nil?
     return false if webhook_failed
-    return false if link.has_stampable_pdfs? && !url_redirect.is_done_pdf_stamping
 
     true
   end

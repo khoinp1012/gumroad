@@ -3062,16 +3062,9 @@ describe Purchase, :vcr do
         expect(purchase.has_content?).to be(false)
       end
 
-      it "returns false if product has stampable files but the stamping hasn't finished" do
+      it "returns true even if product has stampable files that haven't finished stamping" do
         product.product_files << create(:readable_document, pdf_stamp_enabled: true)
 
-        expect(purchase.has_content?).to be(false)
-      end
-
-      it "returns true if product has stampable files and the stamping has finished" do
-        product.product_files << create(:readable_document, pdf_stamp_enabled: true)
-
-        allow(url_redirect).to receive(:is_done_pdf_stamping).and_return true
         expect(purchase.has_content?).to be(true)
       end
 

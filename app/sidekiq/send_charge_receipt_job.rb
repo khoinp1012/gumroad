@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Job used to send the initial receipt email after checkout for a given charge.
-# If there are PDFs that need to be stamped, the caller must enqueue this job using the "default" queue
+# PDF stamping is enqueued asynchronously so the receipt is never delayed.
 #
 class SendChargeReceiptJob
   include Sidekiq::Job
@@ -12,7 +12,7 @@ class SendChargeReceiptJob
     return if charge.receipt_sent?
 
     charge.purchases_requiring_stamping.each do |purchase|
-      PdfStampingService.stamp_for_purchase!(purchase)
+      StampPdfForPurchaseJob.perform_async(purchase.id)
     end
 
     charge.with_lock do

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Stamps PDF(s) for a purchase
+# Stamps PDF(s) for a purchase. Errors propagate so Sidekiq retries on failure.
 class StampPdfForPurchaseJob
   include Sidekiq::Job
   sidekiq_options queue: :long, retry: 5, lock: :until_executed
@@ -15,8 +15,5 @@ class StampPdfForPurchaseJob
       # Invalidate the cache after sending the email notification
       Rails.cache.delete(PdfStampingService.cache_key_for_purchase(purchase_id))
     end
-
-  rescue PdfStampingService::Error => e
-    Rails.logger.error("[#{self.class.name}.#{__method__}] Failed stamping for purchase #{purchase.id}: #{e.message}")
   end
 end

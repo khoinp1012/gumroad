@@ -28,9 +28,8 @@ describe StampPdfForPurchaseJob do
       allow(PdfStampingService).to receive(:stamp_for_purchase!).and_raise(PdfStampingService::Error)
     end
 
-    it "logs and doesn't raise an error" do
-      expect(Rails.logger).to receive(:error).with(/Failed stamping for purchase #{purchase.id}:/)
-      expect { described_class.new.perform(purchase.id) }.not_to raise_error
+    it "raises the error so Sidekiq retries" do
+      expect { described_class.new.perform(purchase.id) }.to raise_error(PdfStampingService::Error)
     end
   end
 
@@ -39,7 +38,7 @@ describe StampPdfForPurchaseJob do
       allow(PdfStampingService).to receive(:stamp_for_purchase!).and_raise(StandardError)
     end
 
-    it "raise an error" do
+    it "raises the error" do
       expect { described_class.new.perform(purchase.id) }.to raise_error(StandardError)
     end
   end
