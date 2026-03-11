@@ -6,6 +6,7 @@ module Payment::FailureReason
   CANNOT_PAY = "cannot_pay"
   DEBIT_CARD_LIMIT = "debit_card_limit"
   INSUFFICIENT_FUNDS = "insufficient_funds"
+  NEGATIVE_STRIPE_BALANCE = "negative_stripe_balance"
 
   PAYPAL_MASS_PAY = {
     "PAYPAL 1000" => "Unknown error",
@@ -133,6 +134,10 @@ module Payment::FailureReason
     "unsupported_card" => {
       reason: "the bank no longer supports payouts to this card",
       solution: "Change the card used for payouts",
+    },
+    "negative_stripe_balance" => {
+      reason: "the Stripe account has a negative balance, likely from a previously returned payout",
+      solution: "Contact Gumroad Support to resolve the negative balance on the Stripe account",
     },
   }
   private_constant :STRIPE_FAILURE_SOLUTIONS

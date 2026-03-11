@@ -299,6 +299,58 @@ describe StripePayoutProcessor, :vcr do
     end
   end
 
+  describe "prepare_payment_and_set_amount when Stripe balance is negative" do
+    let(:user) { create(:user) }
+    let(:bank_account) { create(:ach_account_stripe_succeed, user:) }
+    let(:merchant_account) { create(:merchant_account_stripe_canada, user:) }
+
+    before do
+      user
+      bank_account
+      merchant_account
+      bank_account.reload
+      user.reload
+    end
+
+    let(:balance_1) { create(:balance, user:, date: Date.today - 1, currency: Currency::USD, amount_cents: 10_00, holding_currency: Currency::USD, holding_amount_cents: 10_00) }
+    let(:payment) do
+      payment = create(:payment, user:, currency: nil, amount_cents: nil)
+      payment.balances << balance_1
+      payment
+    end
+
+    it "skips the payout, marks it failed, and adds a payout note" do
+      negative_balance = Stripe::StripeObject.construct_from({
+        available: [{ "amount" => -2953, "currency" => "cad" }]
+      })
+      allow(Stripe::Balance).to receive(:retrieve)
+        .with({}, { stripe_account: merchant_account.charge_processor_merchant_id })
+        .and_return(negative_balance)
+
+      errors = described_class.prepare_payment_and_set_amount(payment, [balance_1])
+
+      expect(errors).to include(/negative balance/)
+      expect(payment.state).to eq("failed")
+      expect(payment.failure_reason).to eq(Payment::FailureReason::NEGATIVE_STRIPE_BALANCE)
+      expect(user.comments.with_type_payout_note.last.content).to include("negative balance")
+    end
+
+    it "proceeds normally when the balance is positive" do
+      positive_balance = Stripe::StripeObject.construct_from({
+        available: [{ "amount" => 5000, "currency" => "cad" }]
+      })
+      allow(Stripe::Balance).to receive(:retrieve)
+        .with({}, { stripe_account: merchant_account.charge_processor_merchant_id })
+        .and_return(positive_balance)
+
+      errors = described_class.prepare_payment_and_set_amount(payment, [balance_1])
+
+      expect(errors).to be_empty
+      expect(payment.state).not_to eq("failed")
+      expect(payment.amount_cents).to eq(10_00)
+    end
+  end
+
   describe ".enqueue_payments" do
     let!(:yesterday) { Date.yesterday.to_s }
     let!(:user_ids) { [1, 2, 3, 4] }
@@ -3445,6 +3497,54 @@ describe StripePayoutProcessor, :vcr do
       it "returns 0" do
         expect(described_class.instantly_payable_amount_cents_on_stripe(user)).to eq(0)
       end
+    end
+  end
+
+  describe ".stripe_balance_negative?" do
+    let(:stripe_account_id) { "acct_123" }
+
+    it "returns true when the available balance is negative for the given currency" do
+      balance = Stripe::StripeObject.construct_from({
+        available: [{ "amount" => -2953, "currency" => "usd" }]
+      })
+      allow(Stripe::Balance).to receive(:retrieve)
+        .with({}, { stripe_account: stripe_account_id })
+        .and_return(balance)
+
+      expect(described_class.stripe_balance_negative?(stripe_account_id, Currency::USD)).to be true
+    end
+
+    it "returns false when the available balance is positive" do
+      balance = Stripe::StripeObject.construct_from({
+        available: [{ "amount" => 5000, "currency" => "usd" }]
+      })
+      allow(Stripe::Balance).to receive(:retrieve)
+        .with({}, { stripe_account: stripe_account_id })
+        .and_return(balance)
+
+      expect(described_class.stripe_balance_negative?(stripe_account_id, Currency::USD)).to be false
+    end
+
+    it "returns false when no balance entry exists for the currency" do
+      balance = Stripe::StripeObject.construct_from({
+        available: [{ "amount" => -100, "currency" => "eur" }]
+      })
+      allow(Stripe::Balance).to receive(:retrieve)
+        .with({}, { stripe_account: stripe_account_id })
+        .and_return(balance)
+
+      expect(described_class.stripe_balance_negative?(stripe_account_id, Currency::USD)).to be false
+    end
+
+    it "returns false when the balance is zero" do
+      balance = Stripe::StripeObject.construct_from({
+        available: [{ "amount" => 0, "currency" => "usd" }]
+      })
+      allow(Stripe::Balance).to receive(:retrieve)
+        .with({}, { stripe_account: stripe_account_id })
+        .and_return(balance)
+
+      expect(described_class.stripe_balance_negative?(stripe_account_id, Currency::USD)).to be false
     end
   end
 end

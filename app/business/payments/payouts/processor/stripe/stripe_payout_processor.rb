@@ -138,6 +138,19 @@ class StripePayoutProcessor
     payment.currency = merchant_account.currency
     payment.amount_cents = 0
 
+    # Check the creator's Stripe balance before attempting the transfer.
+    # If negative for the payout currency, skip the payout to avoid the
+    # transfer-fail-reverse cycle that repeats every payout period.
+    if stripe_balance_negative?(payment.stripe_connect_account_id, payment.currency)
+      payout_date = Time.current.to_fs(:formatted_date_full_month)
+      payment.user.add_payout_note(
+        content: "Payout on #{payout_date} was skipped because the Stripe account has a negative balance. " \
+                 "This usually means a previous payout was returned and Stripe is recovering the funds."
+      )
+      payment.mark_failed!(Payment::FailureReason::NEGATIVE_STRIPE_BALANCE)
+      return ["Stripe account has a negative balance for #{payment.currency}"]
+    end
+
     payment.amount_cents += balances_held_by_stripe.sum(&:holding_amount_cents)
 
     # If the user is being paid out funds held by Gumroad, transfer those funds to the creators Stripe account.
@@ -473,5 +486,14 @@ class StripePayoutProcessor
       returned_payment: payment,
       difference_amount_cents:
     )
+  end
+
+  # Returns true if the Stripe connected account's available balance
+  # is negative for the given currency. This typically happens when a
+  # previous payout was returned and Stripe debited the account.
+  def self.stripe_balance_negative?(stripe_connect_account_id, currency)
+    balance = Stripe::Balance.retrieve({}, { stripe_account: stripe_connect_account_id })
+    available_entry = balance.available.find { |entry| entry["currency"] == currency }
+    available_entry.present? && available_entry["amount"] < 0
   end
 end
