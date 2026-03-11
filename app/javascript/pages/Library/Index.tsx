@@ -625,7 +625,8 @@ const LibraryContentLoading = () => {
 
 function LibraryDeferredContent() {
   const { library_data } = cast<PageProps>(usePage().props);
-  return <LibraryContent {...library_data!} />;
+  if (!library_data) return null;
+  return <LibraryContent {...library_data} />;
 }
 
 export default function LibraryPage() {

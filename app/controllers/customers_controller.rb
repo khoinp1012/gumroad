@@ -13,7 +13,7 @@ class CustomersController < Sellers::BaseController
 
   def index
     product = Link.fetch(params[:link_id]) if params[:link_id].present?
-    create_user_event("customers_view")
+    create_user_event("customers_view") unless request.headers["X-Inertia-Partial-Data"]
 
     render inertia: "Customers/Index",
            props: {

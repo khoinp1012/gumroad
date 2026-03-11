@@ -15,14 +15,22 @@ class CreatorHomePresenter
 
   def inertia_props
     {
-      name: -> { seller.alive_user_compliance_info&.first_name || "" },
-      has_sale: -> { has_sale? },
-      getting_started_stats: -> { getting_started_stats },
-      stripe_verification_message: -> { stripe_verification_message },
-      tax_forms: -> { tax_data[:tax_forms] },
-      show_1099_download_notice: -> { tax_data[:show_1099_download_notice] },
-      tax_center_enabled: -> { Feature.active?(:tax_center, seller) },
+      name: seller.alive_user_compliance_info&.first_name || "",
+      has_sale: has_sale?,
+      getting_started_stats: getting_started_stats,
+      stripe_verification_message: stripe_verification_message,
+      tax_forms: tax_data[:tax_forms],
+      show_1099_download_notice: tax_data[:show_1099_download_notice],
+      tax_center_enabled: Feature.active?(:tax_center, seller),
       dashboard_data: InertiaRails.defer(group: "dashboard") { dashboard_data },
+    }
+  end
+
+  def dashboard_data
+    {
+      balances: formatted_balances,
+      sales: top_sales,
+      activity_items: activity_items,
     }
   end
 
@@ -40,14 +48,6 @@ class CreatorHomePresenter
         "first_payout" => seller.has_payout_information?,
         "first_email" => seller.installments.not_workflow_installment.send_emails.exists?,
         "purchased_small_bets" => seller.purchased_small_bets?,
-      }
-    end
-
-    def dashboard_data
-      {
-        balances: formatted_balances,
-        sales: top_sales,
-        activity_items: activity_items,
       }
     end
 
