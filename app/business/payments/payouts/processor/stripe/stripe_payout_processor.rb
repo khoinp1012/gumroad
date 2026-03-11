@@ -138,9 +138,6 @@ class StripePayoutProcessor
     payment.currency = merchant_account.currency
     payment.amount_cents = 0
 
-    # Check the creator's Stripe balance before attempting the transfer.
-    # If negative for the payout currency, skip the payout to avoid the
-    # transfer-fail-reverse cycle that repeats every payout period.
     if stripe_balance_negative?(payment.stripe_connect_account_id, payment.currency)
       failed = true
       payment.failure_reason = Payment::FailureReason::NEGATIVE_STRIPE_BALANCE
@@ -219,23 +216,16 @@ class StripePayoutProcessor
   # Public: Actually sends the money.
   # Returns an array of errors.
   def self.perform_payment(payment)
-    # Re-check the Stripe balance right before issuing the payout.
-    # The balance may have gone negative since create_payment (up to ~25 hours earlier
-    # for cross-border payouts processed via ProcessPaymentWorker).
-    if stripe_balance_negative?(payment.stripe_connect_account_id, payment.currency)
-      failed = true
-      failure_reason = Payment::FailureReason::NEGATIVE_STRIPE_BALANCE
-      return negative_balance_payout_errors(payment)
-    end
-
-    # We have transferred the balance held by gumroad to the connected Stripe standard account.
-    # No payout needs to be issued in this case.
     merchant_account = payment.user.merchant_accounts.find_by(charge_processor_merchant_id: payment.stripe_connect_account_id)
     if merchant_account.is_a_stripe_connect_account?
       stripe_transfer = Stripe::Transfer.retrieve(payment.stripe_internal_transfer_id)
       payment.stripe_transfer_id = stripe_transfer.destination_payment
       payment.mark_completed!
       return
+    end
+
+    if stripe_balance_negative?(payment.stripe_connect_account_id, payment.currency)
+      return negative_balance_payout_errors(payment)
     end
 
     amount_cents = if payment.currency == Currency::KRW
@@ -493,8 +483,6 @@ class StripePayoutProcessor
     )
   end
 
-  # Adds a payout note explaining the negative balance skip and returns
-  # the error array callers should propagate.
   def self.negative_balance_payout_errors(payment)
     payout_date = Time.current.to_fs(:formatted_date_full_month)
     payment.user.add_payout_note(
@@ -504,10 +492,6 @@ class StripePayoutProcessor
     ["Stripe account has a negative balance for #{payment.currency}"]
   end
 
-  # Returns true if the Stripe connected account's available balance
-  # is negative for the given currency. This typically happens when a
-  # previous payout was returned and Stripe debited the account.
-  # Fails open (returns false) on API errors so transient issues don't block payouts.
   def self.stripe_balance_negative?(stripe_connect_account_id, currency)
     balance = Stripe::Balance.retrieve({}, { stripe_account: stripe_connect_account_id })
     available_entry = balance.available.find { |entry| entry["currency"] == currency }
