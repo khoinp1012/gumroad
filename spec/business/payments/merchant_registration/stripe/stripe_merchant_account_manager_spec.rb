@@ -11356,4 +11356,83 @@ describe StripeMerchantAccountManager, :vcr do
       end
     end
   end
+
+  describe ".handle_external_account_event" do
+    let(:user) { create(:user) }
+    let(:stripe_connect_account_id) { "acct_ext_test" }
+    let!(:bank_account) do
+      create(:ach_account, user:,
+             stripe_connect_account_id:,
+             stripe_bank_account_id: "ba_old_id",
+             stripe_fingerprint: "old_fp")
+    end
+
+    context "when account.external_account.created event is received" do
+      let(:stripe_event) do
+        {
+          "id" => "evt_123",
+          "type" => "account.external_account.created",
+          "data" => {
+            "object" => {
+              "id" => "ba_new_id",
+              "object" => "bank_account",
+              "fingerprint" => "new_fp"
+            }
+          }
+        }
+      end
+
+      it "updates the bank account's stripe_bank_account_id and fingerprint" do
+        described_class.handle_external_account_event(stripe_event, stripe_connect_account_id:)
+
+        bank_account.reload
+        expect(bank_account.stripe_bank_account_id).to eq("ba_new_id")
+        expect(bank_account.stripe_fingerprint).to eq("new_fp")
+      end
+
+      it "logs the sync" do
+        expect(Rails.logger).to receive(:info).with(/Syncing external account.*ba_old_id -> ba_new_id/)
+
+        described_class.handle_external_account_event(stripe_event, stripe_connect_account_id:)
+      end
+
+      context "when the external account id already matches" do
+        before { bank_account.update!(stripe_bank_account_id: "ba_new_id") }
+
+        it "does not update the bank account" do
+          expect { described_class.handle_external_account_event(stripe_event, stripe_connect_account_id:) }
+            .not_to change { bank_account.reload.updated_at }
+        end
+      end
+
+      context "when no matching bank account exists" do
+        let(:stripe_connect_account_id) { "acct_unknown" }
+
+        it "does nothing" do
+          expect { described_class.handle_external_account_event(stripe_event, stripe_connect_account_id: "acct_unknown") }
+            .not_to raise_error
+        end
+      end
+    end
+
+    context "when account.external_account.deleted event is received" do
+      let(:stripe_event) do
+        {
+          "id" => "evt_456",
+          "type" => "account.external_account.deleted",
+          "data" => {
+            "object" => {
+              "id" => "ba_old_id",
+              "object" => "bank_account"
+            }
+          }
+        }
+      end
+
+      it "does not modify the bank account" do
+        expect { described_class.handle_external_account_event(stripe_event, stripe_connect_account_id:) }
+          .not_to change { bank_account.reload.stripe_bank_account_id }
+      end
+    end
+  end
 end

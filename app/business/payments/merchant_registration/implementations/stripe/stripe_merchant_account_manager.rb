@@ -595,6 +595,36 @@ module StripeMerchantAccountManager
     end
   end
 
+  # Handles account.external_account.created and account.external_account.deleted
+  # events to keep our bank account records in sync when Stripe replaces an
+  # external account (e.g. during compliance review).
+  def self.handle_external_account_event(stripe_event, stripe_connect_account_id:)
+    return unless stripe_event["type"] == "account.external_account.created"
+
+    external_account = stripe_event["data"]["object"]
+    return unless external_account.present?
+
+    new_external_account_id = external_account["id"]
+    fingerprint = external_account["fingerprint"]
+
+    bank_account = BankAccount.alive
+                              .where(stripe_connect_account_id:)
+                              .where.not(stripe_bank_account_id: [nil, ""])
+                              .order(created_at: :desc)
+                              .first
+    return if bank_account.nil?
+    return if bank_account.stripe_bank_account_id == new_external_account_id
+
+    Rails.logger.info(
+      "Syncing external account for user #{bank_account.user_id}: " \
+      "#{bank_account.stripe_bank_account_id} -> #{new_external_account_id}"
+    )
+
+    bank_account.stripe_bank_account_id = new_external_account_id
+    bank_account.stripe_fingerprint = fingerprint if fingerprint.present?
+    bank_account.save!
+  end
+
   def self.handle_stripe_event_account_deauthorized(stripe_event)
     stripe_event_id = stripe_event["id"]
     stripe_account = stripe_event["data"] && stripe_event["data"]["object"]

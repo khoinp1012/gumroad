@@ -315,6 +315,31 @@ describe StripeEventHandler do
         described_class.new(@stripe_event).handle_stripe_event
       end
     end
+
+    describe "an external account event" do
+      before do
+        @stripe_event = {
+          id: "evt_ext_acct",
+          type: "account.external_account.created",
+          user_id: "acct_connected",
+          account: "acct_connected",
+          data: {
+            object: {
+              id: "ba_new_123",
+              object: "bank_account",
+              fingerprint: "fp_new"
+            }
+          }
+        }
+      end
+
+      it "sends the event to StripeMerchantAccountManager.handle_external_account_event" do
+        expect(StripeMerchantAccountManager).to receive(:handle_external_account_event)
+          .with(anything, stripe_connect_account_id: "acct_connected")
+        expect(StripeChargeProcessor).not_to receive(:handle_stripe_event)
+        described_class.new(@stripe_event).handle_stripe_event
+      end
+    end
   end
 
   private
