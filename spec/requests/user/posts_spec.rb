@@ -504,29 +504,28 @@ describe("Posts on seller profile", type: :system, js: true) do
         expect(page).to have_alert(text: "An error occurred while posting your comment - Content is too long (maximum is 10000 characters)")
       end
 
-      it "shows user avatars" do
-        # Verify current user's avatar when signed in as the post author
+      it "shows post author avatar in comment form" do
         login_as seller
         visit "#{seller.subdomain_with_protocol}/p/#{post.slug}"
         within_section "Write a comment", section_element: :section do
-          expect(page).to have_css("img[src*='#{seller.avatar_variant.key}']")
+          expect(page).to have_css("img[src*='#{seller.avatar_url}']")
         end
+      end
 
-        # Verify current user's avatar when signed in as the comment author
-        logout
+      it "shows commenter avatar in comment form" do
         login_as commenter
         visit "#{seller.subdomain_with_protocol}/p/#{post.slug}"
         within_section "Write a comment", section_element: :section do
-          expect(page).to have_css("img[src*='#{commenter.avatar_variant.key}']")
+          expect(page).to have_css("img[src*='#{commenter.avatar_url}']")
         end
+      end
 
-        # Verify avatars of comment authors
-        logout
+      it "shows comment author avatars" do
         create(:comment, commentable: post)
         visit "#{seller.subdomain_with_protocol}/p/#{post.slug}"
         within_section "2 comments" do
           within "article:nth-child(1)" do
-            expect(page).to have_css("img[src*='#{seller.avatar_variant.key}']")
+            expect(page).to have_css("img[src*='#{seller.avatar_url}']")
           end
           within "article:nth-child(2)" do
             expect(page).to have_css("img[src='#{ActionController::Base.helpers.asset_url("gumroad-default-avatar-5.png")}']")
