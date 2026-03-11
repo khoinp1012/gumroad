@@ -595,9 +595,9 @@ module StripeMerchantAccountManager
     end
   end
 
-  # Handles account.external_account.created and account.external_account.deleted
-  # events to keep our bank account records in sync when Stripe replaces an
-  # external account (e.g. during compliance review).
+  # Handles account.external_account.created events to keep our bank account
+  # records in sync when Stripe replaces an external account (e.g. during
+  # compliance review). Other external_account event types are ignored.
   def self.handle_external_account_event(stripe_event, stripe_connect_account_id:)
     return unless stripe_event["type"] == "account.external_account.created"
 
@@ -613,14 +613,14 @@ module StripeMerchantAccountManager
                               .order(created_at: :desc)
                               .first
     return if bank_account.nil?
-    return if bank_account.stripe_bank_account_id == new_external_account_id
+    return if bank_account.stripe_external_account_id == new_external_account_id
 
     Rails.logger.info(
       "Syncing external account for user #{bank_account.user_id}: " \
-      "#{bank_account.stripe_bank_account_id} -> #{new_external_account_id}"
+      "#{bank_account.stripe_external_account_id} -> #{new_external_account_id}"
     )
 
-    bank_account.stripe_bank_account_id = new_external_account_id
+    bank_account.stripe_external_account_id = new_external_account_id
     bank_account.stripe_fingerprint = fingerprint if fingerprint.present?
     bank_account.save!
   end
