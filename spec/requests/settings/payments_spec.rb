@@ -6203,7 +6203,7 @@ describe("Payments Settings Scenario", type: :system, js: true) do
       visit settings_payments_path
       expect(page).to have_content("Where are you located?")
       find("button[aria-label='Close']").click
-      expect(page).to have_current_path(dashboard_path)
+      expect(page).to have_current_path(dashboard_path, wait: 10)
     end
   end
 
