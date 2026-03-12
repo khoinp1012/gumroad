@@ -90,11 +90,6 @@ async function resolvePageComponent(name) {
 }
 
 createInertiaApp({
-  defaults: {
-    prefetch: {
-      cacheFor: ["30s", "5m"],
-    },
-  },
   progress: false,
   resolve: resolvePageComponent,
   title: (title) => title || "Gumroad",
