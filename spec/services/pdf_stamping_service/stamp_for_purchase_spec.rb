@@ -79,7 +79,7 @@ describe PdfStampingService::StampForPurchase do
         # First stamp succeeds
         expect(described_class.perform!(purchase)).to be(true)
         stamped_pdf = url_redirect.stamped_pdfs.first
-        old_url = stamped_pdf.url
+        stamped_pdf.url
         expect(stamped_pdf).to be_alive
 
         # Simulate expiration (soft-delete)
