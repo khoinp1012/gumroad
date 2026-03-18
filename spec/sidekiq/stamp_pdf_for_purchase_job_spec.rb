@@ -11,8 +11,8 @@ describe StampPdfForPurchaseJob do
     allow(PdfStampingService).to receive(:stamp_for_purchase!)
   end
 
-  it "has unique_across_queues enabled to prevent duplicate jobs on different queues" do
-    expect(described_class.sidekiq_options["unique_across_queues"]).to eq(true)
+  it "uses until_and_while_executing lock to prevent concurrent stamping" do
+    expect(described_class.sidekiq_options["lock"]).to eq(:until_and_while_executing)
   end
 
   it "performs the job" do
