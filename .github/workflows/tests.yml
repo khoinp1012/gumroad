@@ -49,8 +49,20 @@ jobs:
           logger() {
             echo -e "${GREEN}$(date '+%Y/%m/%d %H:%M:%S') build.sh: $1${NC}"
           }
+          retry() {
+            local max_attempts=3
+            local delay=5
+            for i in $(seq 1 $max_attempts); do
+              logger "Attempt $i: $*"
+              if "$@"; then return 0; fi
+              if [ $i -eq $max_attempts ]; then logger "Failed after $max_attempts attempts: $*"; return 1; fi
+              logger "Retrying in ${delay}s..."
+              sleep $delay
+              delay=$((delay * 2))
+            done
+          }
           logger "pulling quay.io/gumroad/ruby:$(cat .ruby-version)-slim-bullseye"
-          docker pull --quiet quay.io/gumroad/ruby:$(cat .ruby-version)-slim-bullseye
+          retry docker pull --quiet quay.io/gumroad/ruby:$(cat .ruby-version)-slim-bullseye
           WEB_BASE_SHA=$(WEB_BASE_DOCKERFILE_FROM=quay.io/gumroad/ruby:$(cat .ruby-version)-slim-bullseye docker/base/generate_tag_for_web_base.sh)
           if ! docker manifest inspect $WEB_BASE_REPO:$WEB_BASE_SHA > /dev/null 2>&1; then
             logger "Building $WEB_BASE_REPO:$WEB_BASE_SHA"
@@ -104,7 +116,19 @@ jobs:
           logger() {
             echo -e "${GREEN}$(date '+%Y/%m/%d %H:%M:%S') build.sh: $1${NC}"
           }
-          docker pull --quiet quay.io/gumroad/ruby:$(cat .ruby-version)-slim-bullseye
+          retry() {
+            local max_attempts=3
+            local delay=5
+            for i in $(seq 1 $max_attempts); do
+              logger "Attempt $i: $*"
+              if "$@"; then return 0; fi
+              if [ $i -eq $max_attempts ]; then logger "Failed after $max_attempts attempts: $*"; return 1; fi
+              logger "Retrying in ${delay}s..."
+              sleep $delay
+              delay=$((delay * 2))
+            done
+          }
+          retry docker pull --quiet quay.io/gumroad/ruby:$(cat .ruby-version)-slim-bullseye
           WEB_BASE_TEST_SHA=$(WEB_BASE_DOCKERFILE_FROM=quay.io/gumroad/ruby:$(cat .ruby-version)-slim-bullseye docker/base/generate_tag_for_web_base_test.sh)
           build_and_push() {
             local repo=$1
@@ -162,6 +186,24 @@ jobs:
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
           logout: false
+      - name: Pull images
+        env:
+          COMPOSE_HTTP_TIMEOUT: 300
+          WEB_REPO: quay.io/gumroad/web
+        run: |
+          retry() {
+            local max_attempts=3 delay=5
+            for i in $(seq 1 $max_attempts); do
+              echo "Attempt $i: $*"
+              if "$@"; then return 0; fi
+              if [ $i -eq $max_attempts ]; then echo "Failed after $max_attempts attempts: $*"; return 1; fi
+              echo "Retrying in ${delay}s..."
+              sleep $delay
+              delay=$((delay * 2))
+            done
+          }
+          retry docker compose -f docker/docker-compose-test-and-ci.yml pull --quiet
+          retry docker pull --quiet $WEB_REPO:test-${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.sha }}
       - name: Start services
         env:
           COMPOSE_HTTP_TIMEOUT: 300
@@ -291,6 +333,24 @@ jobs:
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
           logout: false
+      - name: Pull images
+        env:
+          COMPOSE_HTTP_TIMEOUT: 300
+          WEB_REPO: quay.io/gumroad/web
+        run: |
+          retry() {
+            local max_attempts=3 delay=5
+            for i in $(seq 1 $max_attempts); do
+              echo "Attempt $i: $*"
+              if "$@"; then return 0; fi
+              if [ $i -eq $max_attempts ]; then echo "Failed after $max_attempts attempts: $*"; return 1; fi
+              echo "Retrying in ${delay}s..."
+              sleep $delay
+              delay=$((delay * 2))
+            done
+          }
+          retry docker compose -f docker/docker-compose-test-and-ci.yml pull --quiet
+          retry docker pull --quiet $WEB_REPO:test-${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.sha }}
       - name: Start services
         env:
           COMPOSE_HTTP_TIMEOUT: 300
