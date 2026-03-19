@@ -122,6 +122,7 @@ Reduce the number of flaky test failures in the Gumroad CI pipeline. Tests run o
 | 23282514418 | 0 | 0 | Fifth clean run! Verification run 5 — all fixes stable |
 | 23283351276 | 0 | 0 | Sixth clean run! Continued stability |
 | 23284023272 | 0 | 0 | Seventh clean run! |
+| 23284800328 | 1 | 1 | embed_spec:114 affiliate_credit nil (app-level, not test-fixable) |
 
 ### Experiment 8: Shipping preorder tax wait (663164330)
 - **Target**: `spec/requests/purchases/product/shipping/shipping_physical_preorder_spec.rb:74` — "Sales tax US$1.07" not found before checkout
@@ -159,4 +160,5 @@ Reduce the number of flaky test failures in the Gumroad CI pipeline. Tests run o
 - `spec/requests/purchases/product/taxes_spec.rb:3735` — Canada Tax "assigns the selected province" VCR threading issue
 - `spec/requests/settings/payments_spec.rb` — Stripe rate limit cascade (partially mitigated by StripeRetryHelper)
 - `spec/services/exports/payouts/annual_spec.rb` — date ordering in CSV export (rare)
+- `spec/requests/embed_spec.rb:114` — affiliate_credit nil after embed purchase (app-level race condition, affiliate not applied to purchase)
 - Various sporadic Chrome/Selenium issues: xpath "/html" not found, undefined method 'map' for true
