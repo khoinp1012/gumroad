@@ -116,7 +116,9 @@ describe "Embed scenario", type: :system, js: true, mock_easypost: true do
 
       within_frame { click_on "Add to cart" }
 
-      check_out(product)
+      expect do
+        check_out(product)
+      end.to change { AffiliateCredit.count }.by(1)
 
       purchase = product.sales.successful.last
       expect(purchase.affiliate_credit.affiliate).to eq(direct_affiliate)
