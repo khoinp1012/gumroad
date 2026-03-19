@@ -3812,7 +3812,11 @@ describe("Product Page - Tax Scenarios", type: :system, js: true) do
         expect(page).to have_select("Province", selected: "ON")
         wait_for_ajax
 
-        check_out(product, address: { street: "568 Beatty St", city: "Vancouver", state: "BC", zip_code: "V6B 2L3" }, should_verify_address: true)
+        check_out(product, address: { street: "568 Beatty St", city: "Vancouver", state: "BC", zip_code: "V6B 2L3" }, should_verify_address: true) do
+          select "BC", from: "Province"
+          find_field("Province").send_keys(:tab)
+          wait_for_ajax
+        end
 
         purchase = Purchase.last
         expect(purchase.total_transaction_cents).to eq(112_00)
