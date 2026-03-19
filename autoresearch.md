@@ -111,6 +111,7 @@ Reduce the number of flaky test failures in the Gumroad CI pipeline. Tests run o
 | 23275898731 | 1 | 1 | Circle integration (fixed in Exp 6) |
 | 23276517885 | 1 | 1 | Canada Tax VCR (fixed in Exp 7) |
 | 23277214585 | 0 | 0 | Second clean run |
+| 23277765625 | 0 | 0 | Third clean run |
 
 ### Remaining Issues (for monitoring)
 - `spec/requests/purchases/product/taxes_spec.rb` — physical product tests may still have Chrome crash issues
