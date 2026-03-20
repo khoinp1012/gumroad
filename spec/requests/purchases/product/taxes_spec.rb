@@ -5,12 +5,19 @@ require("spec_helper")
 describe("Product Page - Tax Scenarios", type: :system, js: true) do
   def set_zip_code_via_js(zip_code)
     zip_field = find_field("ZIP code")
+    page.execute_script(<<~JS, zip_field)
+      var el = arguments[0];
+      var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+      setter.call(el, '');
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+      el.dispatchEvent(new Event('blur', { bubbles: true }));
+    JS
+    sleep 0.1
     page.execute_script(<<~JS, zip_field, zip_code)
       var el = arguments[0];
       var zip = arguments[1];
       var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-      setter.call(el, '');
-      el.dispatchEvent(new Event('input', { bubbles: true }));
       setter.call(el, zip);
       el.dispatchEvent(new Event('input', { bubbles: true }));
       el.dispatchEvent(new Event('change', { bubbles: true }));
