@@ -28,10 +28,8 @@ describe("Product Edit Integrations edit - Circle", :without_circle_rate_limit, 
         VCR.use_cassette("#{@vcr_cassette_prefix} modifies an existing integration correctly", allow_playback_repeats: true) do
           visit edit_link_path(@product)
           expect(page).to have_field("Type or paste your API token", with: GlobalConfig.get("CIRCLE_API_KEY"))
-          wait_for_ajax
           expect(page).to have_select("Select a community", with_options: ["Gumroad [archived]"])
           select("Gumroad [archived]", from: "Select a community")
-          wait_for_ajax
           expect(page).to have_select("Select a space group", with_options: ["Discover"])
           select("Discover", from: "Select a space group")
           save_change
@@ -121,10 +119,8 @@ describe("Product Edit Integrations edit - Circle", :without_circle_rate_limit, 
               fill_in "Type or paste your API token", with: GlobalConfig.get("CIRCLE_API_KEY")
               expect(page).to have_button("Load communities")
               click_on("Load communities")
-              wait_for_ajax
               expect(page).to have_select("Select a community", with_options: ["Gumroad [archived]"])
               select("Gumroad [archived]", from: "Select a community")
-              wait_for_ajax
               expect(page).to have_select("Select a space group", with_options: ["Tests"])
               select("Tests", from: "Select a space group")
 

@@ -4,11 +4,10 @@
 Reduce flaky test failures in the Gumroad CI suite. Tests run across 15 Fast + 45 Slow shards on Ubicloud runners using Knapsack Pro for distribution. Tests are system/request specs using Capybara + Selenium (Chrome headless).
 
 ## Metrics
-- **Primary**: failed_jobs (count, lower is better)
-- **Secondary**: total_failures (count of individual test failures)
+- **Primary**: failed_jobs (unitless, lower is better)
 
 ## How to Run
-`./autoresearch.sh` — pushes to branch, triggers CI, watches run, counts failed jobs.
+`autoresearch.sh` — should emit `METRIC name=number` lines for failed_jobs.
 
 ## Files in Scope
 - `spec/support/product_file_list_helpers.rb` — `wait_for_file_embed_to_finish_uploading` has stale element bug
@@ -52,4 +51,28 @@ Reduce flaky test failures in the Gumroad CI suite. Tests run across 15 Fast + 4
 - Fix: Better Selenium session recovery in spec_helper after_each hooks
 
 ## What's Been Tried
-(Will be updated as experiments run)
+- #1 discard 3 6d3ddc5 — Remove all wait_for_ajax from taxes_spec.rb + fix stale element in wait_for_file_embed_to_finish_uploading. 3 failed jobs (Slow 17, 26, 36) with 8 test failures: Dropbox uploads (4), Circle integration (2), Canada Tax (1), AI Product Generation (1). The tax fix may have worked (no tax failures) but new flakiness appeared elsewhere — likely pre-existing. Main baseline had 1 failed job.
+
+## What's Been Tried
+- No logged experiments yet.
+
+## Plugin Checkpoint
+- Last updated: 2026-03-20T01:31:25.527Z
+- Runs tracked: 1 current / 1 total
+- Baseline: 3
+- Best kept: n/a
+- Confidence: n/a
+- Last logged run: #1 discard 6d3ddc5 — Remove all wait_for_ajax from taxes_spec.rb + fix stale element in wait_for_file_embed_to_finish_uploading. 3 failed jobs (Slow 17, 26, 36) with 8 test failures: Dropbox uploads (4), Circle integration (2), Canada Tax (1), AI Product Generation (1). The tax fix may have worked (no tax failures) but new flakiness appeared elsewhere — likely pre-existing. Main baseline had 1 failed job.
+
+Z
+- Runs tracked: 0 current / 0 total
+- Baseline: n/a
+- Best kept: n/a
+- Confidence: n/a
+- Pending run awaiting log_experiment: ./autoresearch.sh (3)
+
+Z
+- Runs tracked: 0 current / 0 total
+- Baseline: n/a
+- Best kept: n/a
+- Confidence: n/a

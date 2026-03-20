@@ -3853,6 +3853,7 @@ describe("Product Page - Tax Scenarios", type: :system, js: true) do
         add_to_cart(product)
 
         select "Canada", from: "Country"
+        expect(page).to have_text("Total US$105", normalize_ws: true, wait: 10)
         check_out(product, zip_code: nil, credit_card: { number: "4000001240000000" })
 
         purchase = Purchase.last
