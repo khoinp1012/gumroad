@@ -3837,7 +3837,8 @@ describe("Product Page - Tax Scenarios", type: :system, js: true) do
         expect(page).to_not have_field("Business QST ID (optional)")
 
         select "QC", from: "Province"
-        expect(page).to have_field("Business QST ID (optional)")
+        page.execute_script("document.activeElement.blur()")
+        expect(page).to have_field("Business QST ID (optional)", wait: 10)
         check_out(product, zip_code: nil, credit_card: { number: "4000001240000000" })
 
         purchase = Purchase.last
