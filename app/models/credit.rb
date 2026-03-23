@@ -413,6 +413,24 @@ class Credit < ApplicationRecord
     credit
   end
 
+  def credit_type_label
+    if chargebacked_purchase.present?
+      "Dispute won"
+    elsif returned_payment.present?
+      "Returned payout fx difference"
+    elsif refund.present?
+      "VAT refund on Connect sale"
+    elsif financing_paydown_purchase.present?
+      "Loan paydown"
+    elsif fee_retention_refund.present?
+      "Refund fee retained"
+    elsif backtax_agreement.present?
+      "Back tax"
+    else
+      "Credit"
+    end
+  end
+
   def notify_user
     ContactingCreatorMailer.credit_notification(user.id, amount_cents).deliver_later(queue: "critical")
   end

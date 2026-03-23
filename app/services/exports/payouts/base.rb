@@ -60,10 +60,20 @@ class Exports::Payouts::Base
 
           amount = (credit.amount_cents / 100.0).round(2)
           @running_total += credit.amount_cents
+          purchase_id = if credit.chargebacked_purchase.present?
+            credit.chargebacked_purchase.external_id.to_s
+          elsif credit.fee_retention_refund.present?
+            credit.fee_retention_refund.purchase.external_id.to_s
+          elsif credit.refund.present?
+            credit.refund.purchase&.external_id.to_s
+          else
+            ""
+          end
+
           data << [
-            "Credit",
+            credit.credit_type_label,
             bal.date.to_s,
-            credit.fee_retention_refund.present? ? credit.fee_retention_refund.purchase.external_id.to_s : credit.chargebacked_purchase&.external_id.to_s,
+            purchase_id,
             "",
             "",
             "",

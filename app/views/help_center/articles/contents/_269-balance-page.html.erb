@@ -19,11 +19,15 @@
   <p>This amount is shown next to the “PayPal Payouts” header in the payout table and is subtracted from your total sales because it has already been paid out.</p>
   <figure><%= image_tag "https://d33v4339jhl8k0.cloudfront.net/docs/assets/5c4657ad2c7d3a66e32d763f/images/61f1b40a8200bc052eb82d61/file-xSxed1MgIJ.png" %></figure>
   <h3 id="credits">Credits</h3>
-  <p>Credits are one-off financial adjustments made to your balance. Depending on the type of adjustment, the credit amount may be positive or negative. They are mostly issued in the following cases:</p>
+  <p>Credits are one-off financial adjustments made to your balance. Depending on the type of adjustment, the credit amount may be positive or negative. In the payout CSV export and API, each credit is labeled with its specific type:</p>
   <ul>
-    <li>Winning a chargeback: When you win a <a href="134-how-does-gumroad-handle-chargebacks">chargeback</a>, the withheld amount is returned to your balance in the form of a credit.</li>
-    <li>VAT refunds: If you have a <a href="330-stripe-connect">Stripe</a> or <a href="275-paypal-connect">PayPal</a> account connected to Gumroad and a VAT refund is issued on a connected account's sale, a part of the VAT refund gets deducted from your connected account. We issue a credit to fully compensate you for that charge.</li>
-    <li>Backtaxes collection: If you have opted-in to Australian backtaxes collection, the tax will be collected as a negative credit from your balance.</li>
+    <li><b>Dispute won</b>: When you win a <a href="134-how-does-gumroad-handle-chargebacks">chargeback</a>, the withheld amount is returned to your balance.</li>
+    <li><b>VAT refund on Connect sale</b>: If you have a <a href="330-stripe-connect">Stripe</a> or <a href="275-paypal-connect">PayPal</a> account connected to Gumroad and a VAT refund is issued on a connected account's sale, a part of the VAT refund gets deducted from your connected account. We issue a credit to fully compensate you for that charge.</li>
+    <li><b>Back tax</b>: If you have opted-in to Australian backtaxes collection, the tax will be collected as a negative credit from your balance.</li>
+    <li><b>Refund fee retained</b>: When a refund is issued, the payment processing fee may be retained and shown as a separate credit.</li>
+    <li><b>Loan paydown</b>: A deduction applied to your balance for Stripe financing loan repayments.</li>
+    <li><b>Returned payout fx difference</b>: An adjustment for currency conversion differences when a payout is returned.</li>
+    <li><b>Credit</b>: A general credit issued by Gumroad, such as a manual balance adjustment.</li>
   </ul>
   <p>Credits are not paid separately but are included as part of your <a href="13-getting-paid#schedule">weekly payouts</a>.</p>
   <h3 id="Bank-withdrawals-U1p-o">Bank withdrawals</h3>

@@ -148,7 +148,7 @@ export const GetPayout = () => (
       />
       <ApiParameter
         name="include_transactions"
-        description='(optional, default: "false") - Set to "true" to include the same transaction details in the response as exported payout CSV. All balance-affecting transactions included in the payout will be listed in a "transactions" array. Each transaction will have these keys: { type:, date:, purchase_id:, item_name:, buyer_name:, buyer_email:, taxes:, shipping:, sale_price:, gumroad_fees:, net_total: }. The "type" of transactions can be "Sale", "Chargeback", "Full Refund", "Partial Refund", "PayPal Refund", "Stripe Connect Refund", "Affiliate Credit", "PayPal Connect Affiliate Fees", "Stripe Connect Affiliate Fees", "PayPal Payouts", "Stripe Connect Payouts", "Credit", "Payout Fee", and "Technical Adjustment".'
+        description='(optional, default: "false") - Set to "true" to include the same transaction details in the response as exported payout CSV. All balance-affecting transactions included in the payout will be listed in a "transactions" array. Each transaction will have these keys: { type:, date:, purchase_id:, item_name:, buyer_name:, buyer_email:, taxes:, shipping:, sale_price:, gumroad_fees:, net_total: }. The "type" of transactions can be "Sale", "Chargeback", "Full Refund", "Partial Refund", "PayPal Refund", "Stripe Connect Refund", "Affiliate Credit", "PayPal Connect Affiliate Fees", "Stripe Connect Affiliate Fees", "PayPal Payouts", "Stripe Connect Payouts", "Credit", "Dispute won", "Returned payout fx difference", "VAT refund on Connect sale", "Loan paydown", "Refund fee retained", "Back tax", "Payout Fee", and "Technical Adjustment".'
       />
     </ApiParameters>
     <PayoutDetailResponseFields />
@@ -259,7 +259,7 @@ export const GetUpcomingPayouts = () => (
       />
       <ApiParameter
         name="include_transactions"
-        description='(optional, default: "false") - Set to "true" to include the same transaction details in the response as exported payout CSV. All balance-affecting transactions included in the payout will be listed in a "transactions" array. Each transaction will have these keys: { type:, date:, purchase_id:, item_name:, buyer_name:, buyer_email:, taxes:, shipping:, sale_price:, gumroad_fees:, net_total: }. The "type" of transactions can be "Sale", "Chargeback", "Full Refund", "Partial Refund", "PayPal Refund", "Stripe Connect Refund", "Affiliate Credit", "PayPal Connect Affiliate Fees", "Stripe Connect Affiliate Fees", "PayPal Payouts", "Stripe Connect Payouts", "Credit", "Payout Fee", and "Technical Adjustment".'
+        description='(optional, default: "false") - Set to "true" to include the same transaction details in the response as exported payout CSV. All balance-affecting transactions included in the payout will be listed in a "transactions" array. Each transaction will have these keys: { type:, date:, purchase_id:, item_name:, buyer_name:, buyer_email:, taxes:, shipping:, sale_price:, gumroad_fees:, net_total: }. The "type" of transactions can be "Sale", "Chargeback", "Full Refund", "Partial Refund", "PayPal Refund", "Stripe Connect Refund", "Affiliate Credit", "PayPal Connect Affiliate Fees", "Stripe Connect Affiliate Fees", "PayPal Payouts", "Stripe Connect Payouts", "Credit", "Dispute won", "Returned payout fx difference", "VAT refund on Connect sale", "Loan paydown", "Refund fee retained", "Back tax", "Payout Fee", and "Technical Adjustment".'
       />
     </ApiParameters>
     <PayoutsDetailResponseFields />

@@ -83,6 +83,34 @@ describe Exports::Payouts::Csv, :vcr do
                                                                  chargedback_purchase: @regular_purchase,
                                                                  balance_transaction_issued_amount: bt,
                                                                  balance_transaction_holding_amount: bt)
+
+        seller_merchant_account = create(:merchant_account, user: @seller)
+        @credit_for_loan_paydown = Credit.create_for_financing_paydown!(
+          purchase: @regular_purchase,
+          amount_cents: -500,
+          merchant_account: seller_merchant_account,
+          stripe_loan_paydown_id: "cptxn_test123"
+        )
+        backtax_agreement = create(:backtax_agreement, user: @seller)
+        backtax_credit = Credit.new(
+          user: @seller,
+          merchant_account: MerchantAccount.gumroad(StripeChargeProcessor.charge_processor_id),
+          amount_cents: -800,
+          backtax_agreement: backtax_agreement
+        )
+        backtax_credit.save!
+        backtax_bt_amount = BalanceTransaction::Amount.new(currency: Currency::USD, gross_cents: -800, net_cents: -800)
+        backtax_balance_transaction = BalanceTransaction.create!(
+          user: @seller,
+          merchant_account: backtax_credit.merchant_account,
+          credit: backtax_credit,
+          issued_amount: backtax_bt_amount,
+          holding_amount: backtax_bt_amount
+        )
+        backtax_credit.update!(balance: backtax_balance_transaction.balance)
+        @credit_for_backtax = backtax_credit
+
+        allow(PaypalPayoutProcessor).to receive(:is_balance_payable).exactly(5).times.and_return(true)
       end
 
       @payout = create_payout(payout_date, payout_processor_type, @seller)
@@ -96,6 +124,7 @@ describe Exports::Payouts::Csv, :vcr do
         ["Chargeback", @purchase_to_chargeback.chargeback_date.to_date.to_s, @purchase_to_chargeback.external_id, @purchase_to_chargeback.link.name, @purchase_to_chargeback.full_name, @purchase_to_chargeback.purchaser_email_or_email, "-0.0", "-0.0", "-10.0", "-2.09", "-7.91"],
         ["Sale", @purchase_to_chargeback.succeeded_at.to_date.to_s, @purchase_to_chargeback.external_id, @purchase_to_chargeback.link.name, @purchase_to_chargeback.full_name, @purchase_to_chargeback.purchaser_email_or_email, "0.0", "0.0", "10.0", "2.09", "7.91"],
         ["Credit", @user_credit.balance.date.to_s, "", "", "", "", "", "", "10.0", "", "10.0"],
+        ["Back tax", @credit_for_backtax.balance.date.to_s, "", "", "", "", "", "", "-8.0", "", "-8.0"],
         ["Sale", @regular_purchase.succeeded_at.to_date.to_s, @regular_purchase.external_id, @regular_purchase.link.name, @regular_purchase.full_name, @regular_purchase.purchaser_email_or_email, "0.0", "0.0", "10.0", "2.09", "7.91"],
         ["Sale", @purchase_with_tax.succeeded_at.to_date.to_s, @purchase_with_tax.external_id, @purchase_with_tax.link.name, @purchase_with_tax.full_name, @purchase_with_tax.purchaser_email_or_email, "2.0", "0.0", "10.0", "2.09", "7.91"],
         ["Sale", @purchase_with_gumroad_tax.succeeded_at.to_date.to_s, @purchase_with_gumroad_tax.external_id, @purchase_with_gumroad_tax.link.name, @purchase_with_gumroad_tax.full_name, @purchase_with_gumroad_tax.purchaser_email_or_email, "1.8", "0.0", "10.0", "2.09", "7.91"],
@@ -103,15 +132,16 @@ describe Exports::Payouts::Csv, :vcr do
         ["Sale", @purchase_to_refund_partially.succeeded_at.to_date.to_s, @purchase_to_refund_partially.external_id, @purchase_to_refund_partially.link.name, @purchase_to_refund_partially.full_name, @purchase_to_refund_partially.purchaser_email_or_email, "0.0", "0.0", "10.0", "2.09", "7.91"],
         ["Sale", @purchase_to_refund_from_years_ago.succeeded_at.to_date.to_s, @purchase_to_refund_from_years_ago.external_id, @purchase_to_refund_from_years_ago.link.name, @purchase_to_refund_from_years_ago.full_name, @purchase_to_refund_from_years_ago.purchaser_email_or_email, "0.0", "0.0", "10.0", "2.09", "7.91"],
         ["Affiliate Credit", @purchase_with_tax.succeeded_at.to_date.to_s, "", "", "", "", "", "", "0.23", "", "0.23"],
-        ["Credit", @credit_for_dispute_won.balance.date.to_s, @regular_purchase.external_id, "", "", "", "", "", "7.91", "", "7.91"],
+        ["Dispute won", @credit_for_dispute_won.balance.date.to_s, @regular_purchase.external_id, "", "", "", "", "", "7.91", "", "7.91"],
+        ["Loan paydown", @credit_for_loan_paydown.balance.date.to_s, "", "", "", "", "", "", "-5.0", "", "-5.0"],
         ["Sale", @paypal_purchase.succeeded_at.to_date.to_s, @paypal_purchase.external_id, @paypal_purchase.link.name, @paypal_purchase.full_name, @paypal_purchase.purchaser_email_or_email, "0.0", "0.0", "10.0", "1.5", "8.5"],
         ["PayPal Connect Affiliate Fees", @paypal_purchase.succeeded_at.to_date.to_s, "", "", "", "", "", "", "-2.0", "", "-2.0"],
         ["Full Refund", (@purchase_to_refund.succeeded_at + 1.day).to_date.to_s, @purchase_to_refund.external_id, @purchase_to_refund.link.name, @purchase_to_refund.full_name, @purchase_to_refund.purchaser_email_or_email, "-0.0", "-0.0", "-10.0", "-1.5", "-8.5"],
         ["Partial Refund", (@purchase_to_refund_partially.succeeded_at + 1.day).to_date.to_s, @purchase_to_refund_partially.external_id, @purchase_to_refund_partially.link.name, @purchase_to_refund_partially.full_name, @purchase_to_refund_partially.purchaser_email_or_email, "-0.0", "-0.0", "-3.5", "-0.55", "-2.95"],
         ["Full Refund", (@purchase_to_refund_from_years_ago.succeeded_at + 1.day).to_date.to_s, @purchase_to_refund_from_years_ago.external_id, @purchase_to_refund_from_years_ago.link.name, @purchase_to_refund_from_years_ago.full_name, @purchase_to_refund_from_years_ago.purchaser_email_or_email, "-0.0", "-0.0", "-10.0", "-1.5", "-8.5"],
         ["PayPal Payouts", @payout.payout_period_end_date.to_s, "", "", "", "", "", "", "-6.5", "", "-6.5"],
-        ["Payout Fee", @payout.payout_period_end_date.to_s, "", "", "", "", "", "", "", "0.92", "-0.92"],
-        ["Totals", nil, nil, nil, nil, nil, "3.8", "0.0", "56.14", "11.41", "44.73"]
+        ["Payout Fee", @payout.payout_period_end_date.to_s, "", "", "", "", "", "", "", "0.66", "-0.66"],
+        ["Totals", nil, nil, nil, nil, nil, "3.8", "0.0", "43.14", "11.15", "31.99"]
       ]
 
       expect(parsed_csv).to eq(expected)
