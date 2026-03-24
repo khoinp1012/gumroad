@@ -440,6 +440,25 @@ describe Api::Mobile::PurchasesController do
     end
   end
 
+  describe "DELETE destroy" do
+    it "marks a purchase as deleted by buyer" do
+      purchase = create(:purchase_with_balance, purchaser: @purchaser)
+
+      delete :destroy, params: @params.merge(id: purchase.external_id)
+
+      expect(response.parsed_body).to eq({ success: true, product: purchase.reload.json_data_for_mobile }.as_json)
+      expect(purchase.reload.is_deleted_by_buyer).to eq(true)
+    end
+
+    it "returns 404 for a purchase that doesn't belong to the purchaser" do
+      purchase = create(:purchase_with_balance, purchaser: create(:user))
+
+      delete :destroy, params: @params.merge(id: purchase.external_id)
+
+      expect(response).to have_http_status :not_found
+    end
+  end
+
   describe "purchase_attributes" do
     it "returns details for a successful product" do
       purchase = create(:purchase, purchaser: @purchaser)
@@ -606,6 +625,17 @@ describe Api::Mobile::PurchasesController do
         expect(response.parsed_body[:purchases].size).to eq(1)
         expect(response.parsed_body[:purchases][0][:purchase_id]).to eq(purchase_1.external_id)
       end
+    end
+
+    it "excludes purchases deleted by buyer" do
+      purchase = create(:purchase, purchaser: @purchaser)
+      create(:purchase, purchaser: @purchaser, is_deleted_by_buyer: true)
+      index_model_records(Purchase)
+
+      get :search, params: @params
+
+      expect(response.parsed_body[:purchases].size).to eq(1)
+      expect(response.parsed_body[:purchases][0][:purchase_id]).to eq(purchase.external_id)
     end
 
     describe "query by product details" do

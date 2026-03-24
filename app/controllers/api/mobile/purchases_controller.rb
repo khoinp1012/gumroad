@@ -2,7 +2,7 @@
 
 class Api::Mobile::PurchasesController < Api::Mobile::BaseController
   before_action { doorkeeper_authorize! :mobile_api }
-  before_action :fetch_purchase, only: [:purchase_attributes, :archive, :unarchive]
+  before_action :fetch_purchase, only: [:purchase_attributes, :archive, :unarchive, :destroy]
   DEFAULT_SEARCH_RESULTS_SIZE = 10
 
   def index
@@ -64,6 +64,15 @@ class Api::Mobile::PurchasesController < Api::Mobile::BaseController
     }
   end
 
+  def destroy
+    @purchase.update!(is_deleted_by_buyer: true)
+
+    render json: {
+      success: true,
+      product: @purchase.json_data_for_mobile
+    }
+  end
+
   private
     def fetch_purchase
       @purchase = current_resource_owner.purchases.find_by_external_id(params[:id])
@@ -96,6 +105,7 @@ class Api::Mobile::PurchasesController < Api::Mobile::BaseController
         exclude_deactivated_subscriptions: true,
         exclude_bundle_product_purchases: true,
         exclude_commission_completion_purchases: true,
+        exclude_deleted_by_buyer: true,
         track_total_hits: true,
         from: ((@page - 1) * @items),
         size: @items,
