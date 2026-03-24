@@ -299,7 +299,8 @@ Devise.setup do |config|
                   scope: "email name",
                   team_id: APPLE_TEAM_ID,
                   key_id: APPLE_KEY_ID,
-                  pem: APPLE_PRIVATE_KEY
+                  pem: APPLE_PRIVATE_KEY,
+                  provider_ignores_state: true
 
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or

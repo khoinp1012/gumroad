@@ -3,6 +3,8 @@
 class User::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   include PageMeta::Base
 
+  skip_before_action :verify_authenticity_token, only: [:apple]
+
   before_action :set_default_page_title
   before_action :set_csrf_meta_tags
   before_action :set_default_meta_tags
@@ -207,6 +209,8 @@ class User::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       redirect_to settings_payments_path, notice: params[:error_description]
     elsif params[REQ_PARAM_STATE] != :async_link_twitter_account.to_s
       Rails.logger.info("OAuth failure and request state unexpected: #{params}")
+      Rails.logger.error("OmniAuth error: #{request.env['omniauth.error']&.message} | type: #{request.env['omniauth.error.type']} | strategy: #{request.env['omniauth.error.strategy']&.name}")
+      Rails.logger.error("OmniAuth error backtrace: #{request.env['omniauth.error']&.backtrace&.first(5)&.join("\n")}")
       super
     else
       render action: "async_link_twitter_account"
