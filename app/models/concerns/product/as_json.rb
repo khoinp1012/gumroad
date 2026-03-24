@@ -97,6 +97,28 @@ module Product::AsJson
         "custom_summary" => custom_summary,
         "is_tiered_membership" => is_tiered_membership?,
         "recurrences" => is_tiered_membership? ? prices.alive.is_buy.map(&:recurrence).uniq : nil,
+        "rich_content" => rich_content_json,
+        "has_same_rich_content_for_all_variants" => has_same_rich_content_for_all_variants?,
+        "files" => ordered_alive_product_files.map { |f|
+          {
+            id: f.external_id,
+            name: f.display_name,
+            size: f.size,
+            url: f.url,
+            filetype: f.filetype,
+            filegroup: f.filegroup,
+          }
+        },
+        "covers" => display_asset_previews.as_json,
+        "main_cover_id" => main_preview&.guid,
+        "bundle_products" => is_bundle? ? bundle_products.select(&:alive?).sort_by(&:position).map { |bp|
+          {
+            product_id: bp.product.external_id,
+            variant_id: bp.variant&.external_id,
+            quantity: bp.quantity,
+            position: bp.position,
+          }
+        } : [],
         "variants" => variant_categories_alive.map do |cat|
           {
             title: cat.title,
@@ -107,6 +129,7 @@ module Product::AsJson
                 is_pay_what_you_want: variant.customizable_price?,
                 recurrence_prices: is_tiered_membership? ? variant.recurrence_price_values : nil,
                 url: nil, # Deprecated
+                rich_content: variant.rich_content_json,
               }
             end.map do
               ppp_factors.blank? ? _1 :

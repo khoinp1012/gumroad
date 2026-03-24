@@ -6,11 +6,15 @@ class Api::V2::LinksController < Api::V2::BaseController
   before_action :check_types_of_file_objects, only: [:update, :create]
   before_action :set_link_id_to_id, only: [:show, :update, :disable, :enable, :destroy]
   before_action :fetch_product, only: [:show, :update, :disable, :enable, :destroy]
+  before_action :preload_product_associations, only: [:show]
 
   def index
     products = current_resource_owner.products.visible.includes(
       :preorder_link, :tags, :taxonomy,
-      variant_categories_alive: [:alive_variants],
+      :alive_rich_contents, :ordered_alive_product_files,
+      { display_asset_previews: [:file_attachment, :file_blob] },
+      bundle_products: [:product, :variant],
+      variant_categories_alive: [{ alive_variants: :alive_rich_contents }],
     ).order(created_at: :desc)
 
     as_json_options = {
@@ -67,6 +71,19 @@ class Api::V2::LinksController < Api::V2::BaseController
 
     def error_with_product(product = nil)
       error_with_object(:product, product)
+    end
+
+    def preload_product_associations
+      ActiveRecord::Associations::Preloader.new(
+        records: [@product],
+        associations: [
+          :preorder_link, :tags, :taxonomy,
+          :alive_rich_contents, :ordered_alive_product_files,
+          { display_asset_previews: [:file_attachment, :file_blob] },
+          { bundle_products: [:product, :variant] },
+          { variant_categories_alive: [{ alive_variants: :alive_rich_contents }] },
+        ]
+      ).call
     end
 
     def check_types_of_file_objects
