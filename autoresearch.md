@@ -10,9 +10,63 @@
 - #1 baseline keep 1 6f47c49 — First CI run with fix: batch ID mappings in save_files! to prevent transitive collision
 - #2 crash 1 7179dd2 — CI infra failure: git checkout failed due to .claude/worktrees submodule path in .gitmodules. Not a test failure.
 - #3 crash 1 7179dd2 — Same CI infra failure on rerun — .claude/worktrees tracked as git submodules breaks checkout
+- #4 keep 2 595e970 — CI run 2 green (also fixed .claude/worktrees blocking checkout)
+- #5 discard 0 3d0a8b0 — CI run 3: different flaky test failed (embed_spec.rb:114 - affiliate embed). Not related to our fix.
+- #6 crash 0 8ff94f1 — CI run 4: webpack build failure in CI (empty manifest.json). Not a test failure — CI infra issue.
 
 ## Plugin Checkpoint
-- Last updated: 2026-03-24T21:10:32.609Z
+- Last updated: 2026-03-24T22:11:33.903Z
+- Runs tracked: 6 current / 6 total
+- Baseline: 1
+- Best kept: 2
+- Confidence: n/a
+- Canonical branch: fix/flaky-dropbox-test
+- Last logged run: #6 crash 8ff94f1 — CI run 4: webpack build failure in CI (empty manifest.json). Not a test failure — CI infra issue.
+- Pending run awaiting log_experiment: cd /Users/gumclaw/.openclaw/workspace/repos/gumroad && gh run watch 23514016240 --exit-status 2>&1; echo "EXIT_CODE=$?" (n/a)
+
+Z
+- Runs tracked: 6 current / 6 total
+- Baseline: 1
+- Best kept: 2
+- Confidence: n/a
+- Canonical branch: fix/flaky-dropbox-test
+- Last logged run: #6 crash 8ff94f1 — CI run 4: webpack build failure in CI (empty manifest.json). Not a test failure — CI infra issue.
+
+Z
+- Runs tracked: 5 current / 5 total
+- Baseline: 1
+- Best kept: 2
+- Confidence: n/a
+- Canonical branch: fix/flaky-dropbox-test
+- Last logged run: #5 discard 3d0a8b0 — CI run 3: different flaky test failed (embed_spec.rb:114 - affiliate embed). Not related to our fix.
+- Pending run awaiting log_experiment: cd /Users/gumclaw/.openclaw/workspace/repos/gumroad && gh run watch 23513149268 --exit-status 2>&1; echo "EXIT_CODE=$?" (n/a)
+
+Z
+- Runs tracked: 5 current / 5 total
+- Baseline: 1
+- Best kept: 2
+- Confidence: n/a
+- Canonical branch: fix/flaky-dropbox-test
+- Last logged run: #5 discard 3d0a8b0 — CI run 3: different flaky test failed (embed_spec.rb:114 - affiliate embed). Not related to our fix.
+
+Z
+- Runs tracked: 4 current / 4 total
+- Baseline: 1
+- Best kept: 2
+- Confidence: n/a
+- Canonical branch: fix/flaky-dropbox-test
+- Last logged run: #4 keep 595e970 — CI run 2 green (also fixed .claude/worktrees blocking checkout)
+- Pending run awaiting log_experiment: cd /Users/gumclaw/.openclaw/workspace/repos/gumroad && gh run watch 23512402858 --exit-status 2>&1; echo "EXIT_CODE=$?" (n/a)
+
+Z
+- Runs tracked: 4 current / 4 total
+- Baseline: 1
+- Best kept: 2
+- Confidence: n/a
+- Canonical branch: fix/flaky-dropbox-test
+- Last logged run: #4 keep 595e970 — CI run 2 green (also fixed .claude/worktrees blocking checkout)
+
+Z
 - Runs tracked: 3 current / 3 total
 - Baseline: 1
 - Best kept: 1

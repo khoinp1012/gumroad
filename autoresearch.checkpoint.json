@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": 1774386632609,
+  "updatedAt": 1774390293903,
   "sessionStartCommit": "8e9dfa4",
   "canonicalBranch": "fix/flaky-dropbox-test",
   "carryForwardContext": null,
@@ -10,21 +10,21 @@
     "metricUnit": "",
     "bestDirection": "higher",
     "currentSegment": 0,
-    "currentRunCount": 3,
-    "totalRunCount": 3,
+    "currentRunCount": 6,
+    "totalRunCount": 6,
     "currentBaselineMetric": 1,
-    "currentBestMetric": 1,
+    "currentBestMetric": 2,
     "confidence": null
   },
   "lastLoggedRun": {
-    "run": 3,
-    "commit": "7179dd2",
-    "metric": 1,
+    "run": 6,
+    "commit": "8ff94f1",
+    "metric": 0,
     "metrics": {},
     "status": "crash",
     "baseline": false,
-    "description": "Same CI infra failure on rerun — .claude/worktrees tracked as git submodules breaks checkout",
-    "timestamp": 1774385532066,
+    "description": "CI run 4: webpack build failure in CI (empty manifest.json). Not a test failure — CI infra issue.",
+    "timestamp": 1774389126131,
     "segment": 0,
     "confidence": null
   },
@@ -64,18 +64,54 @@
       "timestamp": 1774385532066,
       "segment": 0,
       "confidence": null
+    },
+    {
+      "run": 4,
+      "commit": "595e970",
+      "metric": 2,
+      "metrics": {},
+      "status": "keep",
+      "baseline": false,
+      "description": "CI run 2 green (also fixed .claude/worktrees blocking checkout)",
+      "timestamp": 1774386637767,
+      "segment": 0,
+      "confidence": null
+    },
+    {
+      "run": 5,
+      "commit": "3d0a8b0",
+      "metric": 0,
+      "metrics": {},
+      "status": "discard",
+      "baseline": false,
+      "description": "CI run 3: different flaky test failed (embed_spec.rb:114 - affiliate embed). Not related to our fix.",
+      "timestamp": 1774387774747,
+      "segment": 0,
+      "confidence": null
+    },
+    {
+      "run": 6,
+      "commit": "8ff94f1",
+      "metric": 0,
+      "metrics": {},
+      "status": "crash",
+      "baseline": false,
+      "description": "CI run 4: webpack build failure in CI (empty manifest.json). Not a test failure — CI infra issue.",
+      "timestamp": 1774389126131,
+      "segment": 0,
+      "confidence": null
     }
   ],
   "pendingRun": {
-    "command": "cd /Users/gumclaw/.openclaw/workspace/repos/gumroad && gh run watch 23511684369 --exit-status 2>&1; echo \"EXIT_CODE=$?\"",
-    "commit": "0cf1532",
+    "command": "cd /Users/gumclaw/.openclaw/workspace/repos/gumroad && gh run watch 23514016240 --exit-status 2>&1; echo \"EXIT_CODE=$?\"",
+    "commit": "80bc173",
     "primaryMetric": null,
     "metrics": {},
-    "durationSeconds": 1058.055,
+    "durationSeconds": 1092.827,
     "exitCode": 0,
     "passed": true,
     "timedOut": false,
-    "tailOutput": "  ✓ Set up runner\n  ✓ Run actions/checkout@v4\n  ✓ Login to Quay\n  ✓ Start services\n  ✓ Wait for services\n  ✓ Setup test database\n  ✓ Run tests\n  - Archive capybara artifacts\n  - Archive test logs\n  ✓ Clean up\n  ✓ Post Run actions/checkout@v4\n  ✓ Complete runner\n  ✓ Complete job\n✓ Test Slow 38 in 9m56s (ID 68435003475)\n  ✓ Set up job\n  ✓ Set up runner\n  ✓ Run actions/checkout@v4\n  ✓ Login to Quay\n  ✓ Start services\n  ✓ Wait for services\n  ✓ Setup test database\n  ✓ Run tests\n  - Archive capybara artifacts\n  - Archive test logs\n  ✓ Clean up\n  ✓ Post Run actions/checkout@v4\n  ✓ Complete runner\n  ✓ Complete job\n✓ Test Slow 28 in 9m57s (ID 68435003498)\n  ✓ Set up job\n  ✓ Set up runner\n  ✓ Run actions/checkout@v4\n  ✓ Login to Quay\n  ✓ Start services\n  ✓ Wait for services\n  ✓ Setup test database\n  ✓ Run tests\n  - Archive capybara artifacts\n  - Archive test logs\n  ✓ Clean up\n  ✓ Post Run actions/checkout@v4\n  ✓ Complete runner\n  ✓ Complete job\n✓ Test Slow 14 in 9m55s (ID 68435003611)\n  ✓ Set up job\n  ✓ Set up runner\n  ✓ Run actions/checkout@v4\n  ✓ Login to Quay\n  ✓ Start services\n  ✓ Wait for services\n  ✓ Setup test database\n  ✓ Run tests\n  - Archive capybara artifacts\n  - Archive test logs\n  ✓ Clean up\n  ✓ Post Run actions/checkout@v4\n  ✓ Complete runner\n  ✓ Complete job\n✓ Test Slow 20 in 9m56s (ID 68435003637)\n  ✓ Set up job\n  ✓ Set up runner\n  ✓ Run actions/checkout@v4\n  ✓ Login to Quay\n  ✓ Start services\n  ✓ Wait for services\n  ✓ Setup test database\n  ✓ Run tests\n  - Archive capybara artifacts\n  - Archive test logs\n  ✓ Clean up\n  ✓ Post Run actions/checkout@v4\n  ✓ Complete runner\n  ✓ Complete job\n- Unblock deployment from Buildkite (ID 68436434702)\n\nANNOTATIONS\n! Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, nick-fields/retry@v3. Actions will be forced to run with Node.js 24 by default starting June 2nd, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/\nBuild base image: .github#2\n\nEXIT_CODE=0",
-    "capturedAt": 1774386632609
+    "tailOutput": "  ✓ Post Run actions/checkout@v4\n  ✓ Complete runner\n  ✓ Complete job\n✓ Test Slow 34 in 10m19s (ID 68442843333)\n  ✓ Set up job\n  ✓ Set up runner\n  ✓ Run actions/checkout@v4\n  ✓ Login to Quay\n  ✓ Start services\n  ✓ Wait for services\n  ✓ Setup test database\n  ✓ Run tests\n  - Archive capybara artifacts\n  - Archive test logs\n  ✓ Clean up\n  ✓ Post Run actions/checkout@v4\n  ✓ Complete runner\n  ✓ Complete job\n✓ Test Slow 41 in 10m19s (ID 68442843340)\n  ✓ Set up job\n  ✓ Set up runner\n  ✓ Run actions/checkout@v4\n  ✓ Login to Quay\n  ✓ Start services\n  ✓ Wait for services\n  ✓ Setup test database\n  ✓ Run tests\n  - Archive capybara artifacts\n  - Archive test logs\n  ✓ Clean up\n  ✓ Post Run actions/checkout@v4\n  ✓ Complete runner\n  ✓ Complete job\n✓ Test Slow 31 in 10m17s (ID 68442843347)\n  ✓ Set up job\n  ✓ Set up runner\n  ✓ Run actions/checkout@v4\n  ✓ Login to Quay\n  ✓ Start services\n  ✓ Wait for services\n  ✓ Setup test database\n  ✓ Run tests\n  - Archive capybara artifacts\n  - Archive test logs\n  ✓ Clean up\n  ✓ Post Run actions/checkout@v4\n  ✓ Complete runner\n  ✓ Complete job\n✓ Test Slow 21 in 10m17s (ID 68442843350)\n  ✓ Set up job\n  ✓ Set up runner\n  ✓ Run actions/checkout@v4\n  ✓ Login to Quay\n  ✓ Start services\n  ✓ Wait for services\n  ✓ Setup test database\n  ✓ Run tests\n  - Archive capybara artifacts\n  - Archive test logs\n  ✓ Clean up\n  ✓ Post Run actions/checkout@v4\n  ✓ Complete runner\n  ✓ Complete job\n✓ Test Slow 42 in 10m15s (ID 68442843373)\n  ✓ Set up job\n  ✓ Set up runner\n  ✓ Run actions/checkout@v4\n  ✓ Login to Quay\n  ✓ Start services\n  ✓ Wait for services\n  ✓ Setup test database\n  ✓ Run tests\n  - Archive capybara artifacts\n  - Archive test logs\n  ✓ Clean up\n  ✓ Post Run actions/checkout@v4\n  ✓ Complete runner\n  ✓ Complete job\n- Unblock deployment from Buildkite in 0s (ID 68444157087)\nEXIT_CODE=0",
+    "capturedAt": 1774390293903
   }
 }
