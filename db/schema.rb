@@ -2547,7 +2547,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_11_19_011937) do
     t.string "notification_content_type", default: "application/x-www-form-urlencoded"
     t.string "google_uid"
     t.integer "purchasing_power_parity_limit"
+    t.string "apple_uid"
     t.index ["account_created_ip"], name: "index_users_on_account_created_ip"
+    t.index ["apple_uid"], name: "index_users_on_apple_uid"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", length: 191
     t.index ["created_at"], name: "index_users_on_created_at"
     t.index ["current_sign_in_ip"], name: "index_users_on_current_sign_in_ip"

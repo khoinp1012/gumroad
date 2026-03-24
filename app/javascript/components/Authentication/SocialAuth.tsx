@@ -1,4 +1,4 @@
-import { Facebook, Google, Stripe, TwitterX } from "@boxicons/react";
+import { Apple, Facebook, Google, Stripe, TwitterX } from "@boxicons/react";
 import * as React from "react";
 
 import { useFeatureFlags } from "$app/components/FeatureFlags";
@@ -24,6 +24,10 @@ export const SocialAuth = () => {
       >
         <Google pack="brands" className="size-5" />
         Google
+      </SocialAuthButton>
+      <SocialAuthButton provider="apple" href={Routes.user_apple_omniauth_authorize_path({ referer: next })}>
+        <Apple pack="brands" className="size-5" />
+        Apple
       </SocialAuthButton>
       <SocialAuthButton
         provider="twitter"

@@ -179,6 +179,29 @@ class User::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     end
   end
 
+  def apple
+    @user = User.find_or_create_for_apple_oauth(request.env["omniauth.auth"])
+
+    if @user&.persisted?
+      if @user.is_team_member?
+        flash[:alert] = "You're an admin, you can't login with Apple."
+        redirect_to login_path
+      elsif @user.deleted?
+        flash[:alert] = "You cannot log in because your account was permanently deleted. Please sign up for a new account to start selling!"
+        redirect_to login_path
+      elsif @user.email.present?
+        sign_in_or_prepare_for_two_factor_auth(@user)
+        safe_redirect_to two_factor_authentication_path(next: post_auth_redirect(@user))
+      else
+        sign_in @user
+        safe_redirect_to post_auth_redirect(@user)
+      end
+    else
+      flash[:alert] = "Sorry, something went wrong. Please try again."
+      redirect_to signup_path
+    end
+  end
+
   def failure
     if params[:error_description].present?
       redirect_to settings_payments_path, notice: params[:error_description]

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "omniauth-apple"
 require "omniauth-facebook"
 require "omniauth-twitter"
 require "omniauth-google-oauth2"
@@ -291,6 +292,14 @@ Devise.setup do |config|
                   GOOGLE_CLIENT_ID,
                   GOOGLE_CLIENT_SECRET,
                   scope: "email,profile"
+
+  config.omniauth :apple,
+                  APPLE_CLIENT_ID,
+                  "",
+                  scope: "email name",
+                  team_id: APPLE_TEAM_ID,
+                  key_id: APPLE_KEY_ID,
+                  pem: APPLE_PRIVATE_KEY
 
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or
