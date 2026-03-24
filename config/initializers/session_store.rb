@@ -25,8 +25,7 @@ session_cookie_name =
 
 Rails.application.config.session_store :cookie_store,
                                        key: session_cookie_name,
-                                       secure: PROTOCOL == "https",
-                                       same_site: PROTOCOL == "https" ? :none : :lax,
+                                       secure: Rails.env.production?,
                                        domain:,
                                        expire_after:,
                                        tld_length:
