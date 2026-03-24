@@ -543,6 +543,22 @@ describe User::OmniauthCallbacksController do
       end
     end
 
+    context "linking account" do
+      it "links apple account to existing account" do
+        user = create(:user, email: "apple-user@example.com")
+
+        allow(controller).to receive(:current_user).and_return(user)
+
+        post :apple
+
+        user.reload
+
+        expect(user.name).to eq "Jane Appleseed"
+        expect(user.email).to eq "apple-user@example.com"
+        expect(user.apple_uid).to eq "001234.abcdef1234567890abcdef1234567890.1234"
+      end
+    end
+
     context "when user is not created" do
       shared_examples "redirects to signup with error message" do
         it "redirects to the signup page with an error flash message" do
