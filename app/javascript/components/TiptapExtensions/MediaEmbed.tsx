@@ -10,7 +10,6 @@ import { assertResponseError, request } from "$app/utils/request";
 import { sanitizeHtml } from "$app/utils/sanitize";
 
 import { Button } from "$app/components/Button";
-import { Modal } from "$app/components/Modal";
 import { MenuItem } from "$app/components/RichTextEditor";
 import { showAlert } from "$app/components/server-components/Alert";
 import { createInsertCommand } from "$app/components/TiptapExtensions/utils";
@@ -33,10 +32,9 @@ declare module "@tiptap/core" {
 const MEDIA_EMBED_SUPPORTING_PROVIDERS = ["YouTube", "Vimeo", "Wistia, Inc.", "Dailymotion"];
 
 const VideoEmbed = Extension.create({
-  menuItem: (editor) => (
-    <WithDialog editor={editor} type="embed">
-      <MenuItem name="Insert video" icon={<Video className="size-5" />} />
-    </WithDialog>
+  name: "videoEmbed",
+  menuItem: (_editor, onOpen) => (
+    <MenuItem name="Insert video" icon={<Video className="size-5" />} onClick={() => onOpen?.()} />
   ),
 });
 
@@ -80,20 +78,16 @@ export const Raw = TiptapNode.create({
     };
     return walk(doc);
   },
-  menuItem: (editor) => (
-    <WithDialog editor={editor} type="twitter">
-      <MenuItem name="Insert post" icon={<TwitterX pack="brands" className="size-5" />} />
-    </WithDialog>
+  menuItem: (_editor, onOpen) => (
+    <MenuItem name="Insert post" icon={<TwitterX pack="brands" className="size-5" />} onClick={() => onOpen?.()} />
   ),
   submenu: {
     menu: "insert",
-    item: (editor) => (
-      <WithDialog editor={editor} type="twitter">
-        <div role="menuitem">
-          <TwitterX pack="brands" className="size-5" />
-          <span>X post</span>
-        </div>
-      </WithDialog>
+    item: (_editor, onOpen) => (
+      <div role="menuitem" onClick={onOpen}>
+        <TwitterX pack="brands" className="size-5" />
+        <span>X post</span>
+      </div>
     ),
   },
   addCommands() {
@@ -203,35 +197,6 @@ export const insertMediaEmbed = (editor: Editor, data: IframelyEmbedData) => {
   }
 };
 
-const WithDialog = ({
-  editor,
-  type,
-  children,
-}: {
-  editor: Editor;
-  type: "embed" | "twitter";
-  children: React.ReactNode;
-}) => {
-  const [open, setOpen] = React.useState(false);
-  return (
-    <>
-      {open ? (
-        <Modal open onClose={() => setOpen(false)} title={`Insert ${type === "embed" ? "video" : "post"}`}>
-          <EmbedMediaForm
-            type={type}
-            onEmbedReceived={(data) => {
-              insertMediaEmbed(editor, data);
-              setOpen(false);
-            }}
-            onClose={() => setOpen(false)}
-          />
-        </Modal>
-      ) : null}
-      <div onClick={() => setOpen(true)}>{children}</div>
-    </>
-  );
-};
-
 export const ExternalMediaFileEmbed = TiptapNode.create({
   name: "mediaEmbed",
   selectable: false,
@@ -249,9 +214,9 @@ export const ExternalMediaFileEmbed = TiptapNode.create({
           <RowContent className="content">
             <PlayCircle pack="filled" className="type-icon size-5" />
             <div>
-              <h4 className="text-singleline">{node.attrs.title}</h4>
+              <h4 className="truncate">{node.attrs.title}</h4>
               {node.attrs.url ? (
-                <div className="text-singleline">
+                <div className="truncate">
                   <a href={cast(node.attrs.url)} target="_blank" rel="noreferrer">
                     {node.attrs.url}
                   </a>

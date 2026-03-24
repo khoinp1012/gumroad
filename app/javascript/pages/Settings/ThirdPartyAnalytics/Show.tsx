@@ -15,6 +15,7 @@ import { Checkbox } from "$app/components/ui/Checkbox";
 import { Details, DetailsToggle } from "$app/components/ui/Details";
 import { Fieldset, FieldsetDescription, FieldsetTitle } from "$app/components/ui/Fieldset";
 import { FormSection } from "$app/components/ui/FormSection";
+import { InlineList } from "$app/components/ui/InlineList";
 import { Input } from "$app/components/ui/Input";
 import { Label } from "$app/components/ui/Label";
 import { Placeholder } from "$app/components/ui/Placeholder";
@@ -95,7 +96,8 @@ export default function ThirdPartyAnalyticsPage() {
                 Learn more
               </a>
               <div>
-                You can add a Facebook tracking pixel and link your Google Analytics properties to track your visitors.
+                You can add a Facebook or TikTok tracking pixel and link your Google Analytics properties to track your
+                visitors.
               </div>
             </>
           }
@@ -137,6 +139,21 @@ export default function ThirdPartyAnalyticsPage() {
                   placeholder="9127380912836192"
                   value={thirdPartyAnalytics.facebook_pixel_id}
                   onChange={(evt) => updateThirdPartyAnalytics({ facebook_pixel_id: evt.target.value })}
+                />
+              </Fieldset>
+              <Fieldset>
+                <FieldsetTitle>
+                  <Label htmlFor={`${uid}tiktokPixel`}>TikTok Pixel</Label>
+                  <a href="/help/article/174-third-party-analytics" target="_blank" rel="noreferrer">
+                    Learn more
+                  </a>
+                </FieldsetTitle>
+                <Input
+                  id={`${uid}tiktokPixel`}
+                  type="text"
+                  placeholder="CFH83AJC77UUUGLE2TJG"
+                  value={thirdPartyAnalytics.tiktok_pixel_id}
+                  onChange={(evt) => updateThirdPartyAnalytics({ tiktok_pixel_id: evt.target.value })}
                 />
               </Fieldset>
               <Label>
@@ -256,10 +273,10 @@ const SnippetRow = ({
         <CodeAlt className="type-icon size-5" />
         <div>
           <h4>{snippet.name || "Untitled"}</h4>
-          <ul className="inline">
+          <InlineList>
             <li>{products.find(({ permalink }) => permalink === snippet.product)?.name ?? "All products"}</li>
             <li>{LOCATION_TITLES[snippet.location]}</li>
-          </ul>
+          </InlineList>
         </div>
       </RowContent>
       <RowActions>
