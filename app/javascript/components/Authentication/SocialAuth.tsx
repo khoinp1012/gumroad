@@ -17,6 +17,12 @@ export const SocialAuth = () => {
 
   return (
     <section className="flex flex-col gap-4 pb-12">
+      {is_gumroad_mobile_app ? (
+        <SocialAuthButton provider="apple" href={Routes.user_apple_omniauth_authorize_path({ referer: next })}>
+          <Apple pack="brands" className="size-5" />
+          Apple
+        </SocialAuthButton>
+      ) : null}
       <SocialAuthButton
         provider="google"
         href={Routes.user_google_oauth2_omniauth_authorize_path({ referer: next, x_auth_access_type: "read" })}
@@ -24,12 +30,6 @@ export const SocialAuth = () => {
         <Google pack="brands" className="size-5" />
         Google
       </SocialAuthButton>
-      {is_gumroad_mobile_app ? (
-        <SocialAuthButton provider="apple" href={Routes.user_apple_omniauth_authorize_path({ referer: next })}>
-          <Apple pack="brands" className="size-5" />
-          Apple
-        </SocialAuthButton>
-      ) : null}
       {showStripe ? (
         <SocialAuthButton
           provider="stripe"
