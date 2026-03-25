@@ -619,6 +619,18 @@ describe Api::Mobile::PurchasesController do
       expect(response.parsed_body[:purchases][0][:purchase_id]).to eq(purchase.external_id)
     end
 
+    it "excludes expired rental purchases" do
+      purchase = create(:purchase, purchaser: @purchaser)
+      rental_purchase = create(:purchase, purchaser: @purchaser)
+      rental_purchase.update_columns(rental_expired: true)
+      index_model_records(Purchase)
+
+      get :search, params: @params
+
+      expect(response.parsed_body[:purchases].size).to eq(1)
+      expect(response.parsed_body[:purchases][0][:purchase_id]).to eq(purchase.external_id)
+    end
+
     describe "query by product details" do
       it "returns purchases for a given user matching creator description" do
         seller_1 = create(:named_user, name: "Daniel")

@@ -422,6 +422,10 @@ describe PurchaseSearchService do
       create(:purchase, is_deleted_by_buyer: true)
       create(:purchase, is_gift_sender_purchase: true)
       create(:purchase, stripe_refunded: true)
+      create(:purchase, is_bundle_product_purchase: true)
+      create(:purchase, is_commission_completion_purchase: true)
+      deactivated_sub_purchase = create(:membership_purchase, created_at: 2.days.ago)
+      deactivated_sub_purchase.subscription.deactivate!
       index_model_records(Purchase)
 
       expect(get_records(for_library: true)).to match_array([valid_purchase])
