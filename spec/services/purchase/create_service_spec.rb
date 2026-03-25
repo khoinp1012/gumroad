@@ -3671,7 +3671,7 @@ describe Purchase::CreateService, :vcr do
           create_subscription_for(product: membership_product, purchaser: buyer, email: email)
         end
 
-        it "skips the existing subscription check" do
+        it "bypasses the existing subscription check" do
           service = Purchase::CreateService.new(product: membership_product, params: membership_params, buyer:)
           expect(service.send(:should_check_for_restartable_subscription?)).to be false
         end
@@ -3689,7 +3689,7 @@ describe Purchase::CreateService, :vcr do
           )
         end
 
-        it "skips the existing subscription check" do
+        it "bypasses the existing subscription check" do
           service = Purchase::CreateService.new(product: membership_product, params: membership_params, buyer:)
           expect(service.send(:should_check_for_restartable_subscription?)).to be false
         end

@@ -19,7 +19,7 @@ export const SubscriptionChoiceModal = ({ purchase, checkoutUrl, open, onClose }
     return url.toString();
   }, [checkoutUrl]);
 
-  if (purchase.subscription_has_lapsed) {
+  if (purchase.subscription_has_lapsed && purchase.membership) {
     return (
       <Modal open={open} onClose={onClose} title="Resume your previous subscription?">
         <p>
@@ -30,11 +30,9 @@ export const SubscriptionChoiceModal = ({ purchase, checkoutUrl, open, onClose }
           <NavigationButton href={newSubscriptionHref} target="_top">
             No, start a new subscription
           </NavigationButton>
-          {purchase.membership ? (
-            <NavigationButton href={purchase.membership.manage_url} color="black" target="_blank">
-              Yes, resume subscription
-            </NavigationButton>
-          ) : null}
+          <NavigationButton href={purchase.membership.manage_url} color="black" target="_blank">
+            Yes, resume subscription
+          </NavigationButton>
         </div>
       </Modal>
     );
