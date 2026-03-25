@@ -96,6 +96,7 @@ class Api::Mobile::PurchasesController < Api::Mobile::BaseController
         exclude_deactivated_subscriptions: true,
         exclude_bundle_product_purchases: true,
         exclude_commission_completion_purchases: true,
+        exclude_deleted_by_buyer: true,
         track_total_hits: true,
         from: ((@page - 1) * @items),
         size: @items,

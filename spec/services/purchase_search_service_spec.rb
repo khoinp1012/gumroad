@@ -385,6 +385,16 @@ describe PurchaseSearchService do
       expect(get_records(exclude_commission_completion_purchases: false)).to match_array([purchase1, purchase2])
     end
 
+    it "can filter by is_deleted_by_buyer" do
+      purchase1 = create(:purchase, is_deleted_by_buyer: true)
+      purchase2 = create(:purchase)
+      index_model_records(Purchase)
+
+      expect(get_records).to match_array([purchase1, purchase2])
+      expect(get_records(exclude_deleted_by_buyer: true)).to match_array([purchase2])
+      expect(get_records(exclude_deleted_by_buyer: false)).to match_array([purchase1, purchase2])
+    end
+
     it "can apply some native ES params" do
       purchase_1 = create(:purchase, price_cents: 3)
       _purchase_2 = create(:purchase, price_cents: 1)

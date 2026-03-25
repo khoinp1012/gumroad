@@ -31,6 +31,7 @@ class PurchaseSearchService
     exclude_non_successful_preorder_authorizations: false,
     exclude_bundle_product_purchases: false,
     exclude_commission_completion_purchases: false,
+    exclude_deleted_by_buyer: false,
     # Ranges
     price_greater_than: nil, # Integer, compared to price_cents
     price_less_than: nil, # Integer, compared to price_cents
@@ -108,6 +109,7 @@ class PurchaseSearchService
       build_body_exclude_non_successful_preorder_authorizations
       build_body_exclude_bundle_product_purchases
       build_body_exclude_commission_completion_purchases
+      build_body_exclude_deleted_by_buyer
       # Ranges
       build_body_price_greater_than
       build_body_price_less_than
@@ -319,6 +321,11 @@ class PurchaseSearchService
     def build_body_exclude_commission_completion_purchases
       return unless @options[:exclude_commission_completion_purchases]
       @body[:query][:bool][:must_not] << { term: { "selected_flags" => "is_commission_completion_purchase" } }
+    end
+
+    def build_body_exclude_deleted_by_buyer
+      return unless @options[:exclude_deleted_by_buyer]
+      @body[:query][:bool][:must_not] << { term: { "selected_flags" => "is_deleted_by_buyer" } }
     end
 
     def build_body_price_greater_than
