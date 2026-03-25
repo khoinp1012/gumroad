@@ -40,7 +40,6 @@ import { useLoggedInUser } from "$app/components/LoggedInUser";
 import { Modal } from "$app/components/Modal";
 import { PaginationProps } from "$app/components/Pagination";
 import { AuthorByline } from "$app/components/Product/AuthorByline";
-import { SubscriptionChoiceModal } from "$app/components/Product/SubscriptionChoiceModal";
 import {
   applySelection,
   ConfigurationSelector,
@@ -58,6 +57,7 @@ import { DiscountExpirationCountdown } from "$app/components/Product/DiscountExp
 import { PriceTag } from "$app/components/Product/PriceTag";
 import { Ribbon } from "$app/components/Product/Ribbon";
 import { ShareSection } from "$app/components/Product/ShareSection";
+import { SubscriptionChoiceModal } from "$app/components/Product/SubscriptionChoiceModal";
 import { Thumbnail } from "$app/components/Product/Thumbnail";
 import { PublicFilesSettingsContext } from "$app/components/ProductEdit/ProductTab/DescriptionEditor";
 import { InstallmentPlan } from "$app/components/ProductEdit/state";
@@ -588,10 +588,14 @@ export const Product = ({
                 e.preventDefault();
                 return;
               }
-              if (loggedInUser && purchase?.membership && product.is_recurring_billing) {
+              if (
+                loggedInUser &&
+                purchase &&
+                (purchase.membership || purchase.subscription_has_lapsed) &&
+                product.is_recurring_billing
+              ) {
                 e.preventDefault();
-                const target = e.currentTarget as HTMLAnchorElement;
-                setCheckoutUrlForModal(target.href);
+                setCheckoutUrlForModal(e.currentTarget.href);
                 setSubscriptionModalOpen(true);
               }
             }}
@@ -641,7 +645,7 @@ export const Product = ({
         </section>
         {product.ratings ? <Reviews ratings={product.ratings} productId={product.id} seller={product.seller} /> : null}
       </section>
-      {purchase?.membership && product.is_recurring_billing ? (
+      {purchase && (purchase.membership || purchase.subscription_has_lapsed) && product.is_recurring_billing ? (
         <SubscriptionChoiceModal
           purchase={purchase}
           checkoutUrl={checkoutUrlForModal}

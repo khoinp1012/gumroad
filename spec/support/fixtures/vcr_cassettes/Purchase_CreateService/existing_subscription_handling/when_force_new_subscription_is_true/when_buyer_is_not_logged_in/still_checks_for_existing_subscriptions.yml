@@ -13,8 +13,10 @@ http_interactions:
       - Bearer <STRIPE_API_KEY>
       Content-Type:
       - application/x-www-form-urlencoded
+      X-Stripe-Client-Telemetry:
+      - '{"last_request_metrics":{"request_id":"req_tHXOj6bxcXXocX","request_duration_ms":930}}'
       Idempotency-Key:
-      - a5b3166b-0628-46ac-83f6-427779b15fb7
+      - ce4158fd-0b8a-4117-a876-f96cb030ca1d
       Stripe-Version:
       - '2023-10-16'
       X-Stripe-Client-User-Agent:
@@ -33,7 +35,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Wed, 25 Mar 2026 03:16:17 GMT
+      - Wed, 25 Mar 2026 04:35:49 GMT
       Content-Type:
       - application/json
       Content-Length:
@@ -57,13 +59,13 @@ http_interactions:
       - base-uri 'none'; default-src 'none'; form-action 'none'; frame-ancestors 'none';
         img-src 'self'; script-src 'self' 'report-<RPUSH_CONSUMER_FCM_FIREBASE_PROJECT_ID>';
         style-src 'self'; worker-src 'none'; upgrade-insecure-requests; report-uri
-        https://q.stripe.com/csp-violation?q=jpIWVcjXMP1tqgJRhH3-y8UVpBgV89pdETIDdtQ2iZ4s4IY49Qpw4OheUK4CfOydokNU9ToLtRUvk3AN
+        https://q.stripe.com/csp-violation?q=12CJHbBqNX4J0iznDh40WU4acprYNErVODwBFrssFwxncHCw0ARbAe5p7DlMhLnxaEuHjAhbVfjx--3R
       Idempotency-Key:
-      - a5b3166b-0628-46ac-83f6-427779b15fb7
+      - ce4158fd-0b8a-4117-a876-f96cb030ca1d
       Original-Request:
-      - req_rswK5jebOOx4TV
+      - req_bbOm1F19VUhoyZ
       Request-Id:
-      - req_rswK5jebOOx4TV
+      - req_bbOm1F19VUhoyZ
       Stripe-Should-Retry:
       - 'false'
       Stripe-Version:
@@ -82,7 +84,7 @@ http_interactions:
       encoding: UTF-8
       string: |-
         {
-          "id": "pm_1TEhvZIBOqvOFDrfTCkC4ery",
+          "id": "pm_1TEjAWIBOqvOFDrfrp6Q1fAd",
           "object": "payment_method",
           "allow_redisplay": "unspecified",
           "billing_details": {
@@ -126,12 +128,12 @@ http_interactions:
             },
             "wallet": null
           },
-          "created": 1774408577,
+          "created": 1774413348,
           "customer": null,
           "customer_account": null,
           "livemode": false,
           "metadata": {},
           "type": "card"
         }
-  recorded_at: Wed, 25 Mar 2026 03:16:17 GMT
+  recorded_at: Wed, 25 Mar 2026 04:35:48 GMT
 recorded_with: VCR 6.2.0

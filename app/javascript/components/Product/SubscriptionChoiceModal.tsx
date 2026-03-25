@@ -14,7 +14,7 @@ type Props = {
 export const SubscriptionChoiceModal = ({ purchase, checkoutUrl, open, onClose }: Props) => {
   const newSubscriptionHref = React.useMemo(() => {
     if (!checkoutUrl) return "";
-    const url = new URL(checkoutUrl);
+    const url = new URL(checkoutUrl, window.location.origin);
     url.searchParams.set("force_new_subscription", "true");
     return url.toString();
   }, [checkoutUrl]);
@@ -23,8 +23,8 @@ export const SubscriptionChoiceModal = ({ purchase, checkoutUrl, open, onClose }
     return (
       <Modal open={open} onClose={onClose} title="Resume your previous subscription?">
         <p>
-          You've previously subscribed to this product. Would you like to <strong>pick up where you left off</strong>, or{" "}
-          <strong>start fresh with a new subscription</strong>?
+          You've previously subscribed to this product. Would you like to <strong>pick up where you left off</strong>,
+          or <strong>start fresh with a new subscription</strong>?
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <NavigationButton href={newSubscriptionHref} target="_top">
@@ -43,12 +43,11 @@ export const SubscriptionChoiceModal = ({ purchase, checkoutUrl, open, onClose }
   return (
     <Modal open={open} onClose={onClose} title="You already have an active subscription">
       <p>
-        You currently have an active subscription to this product. Would you like to <strong>start a new subscription</strong>?
+        You currently have an active subscription to this product. Would you like to{" "}
+        <strong>start a new subscription</strong>?
       </p>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Button onClick={onClose}>
-          Cancel
-        </Button>
+        <Button onClick={onClose}>Cancel</Button>
         <NavigationButton href={newSubscriptionHref} color="black" target="_top">
           Yes, start a new subscription
         </NavigationButton>
