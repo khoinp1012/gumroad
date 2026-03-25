@@ -38,6 +38,8 @@ export const SubscriptionChoiceModal = ({ purchase, checkoutUrl, open, onClose }
     );
   }
 
+  if (!purchase.membership) return null;
+
   return (
     <Modal open={open} onClose={onClose} title="You already have an active subscription">
       <p>

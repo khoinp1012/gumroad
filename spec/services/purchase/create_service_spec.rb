@@ -3671,9 +3671,11 @@ describe Purchase::CreateService, :vcr do
           create_subscription_for(product: membership_product, purchaser: buyer, email: email)
         end
 
-        it "bypasses the existing subscription check" do
+        it "does not return the existing subscription error" do
           service = Purchase::CreateService.new(product: membership_product, params: membership_params, buyer:)
-          expect(service.send(:should_check_for_restartable_subscription?)).to be false
+          _purchase, error = service.perform rescue nil
+
+          expect(error).not_to eq("You already have an active subscription to this membership. Visit your Library to manage it.")
         end
       end
 
@@ -3689,9 +3691,14 @@ describe Purchase::CreateService, :vcr do
           )
         end
 
-        it "bypasses the existing subscription check" do
+        it "does not restart the existing subscription" do
+          updater_service = instance_double(Subscription::UpdaterService)
+          allow(Subscription::UpdaterService).to receive(:new).and_return(updater_service)
+
           service = Purchase::CreateService.new(product: membership_product, params: membership_params, buyer:)
-          expect(service.send(:should_check_for_restartable_subscription?)).to be false
+          service.perform rescue nil
+
+          expect(Subscription::UpdaterService).not_to have_received(:new)
         end
       end
 
