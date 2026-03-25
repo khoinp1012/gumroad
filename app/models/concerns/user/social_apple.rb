@@ -10,7 +10,8 @@ module User::SocialApple
         return nil
       end
 
-      user = User.where(apple_uid: data["uid"]).first
+      auth = UserExternalAuthentication.find_by(provider: "apple", uid: data["uid"])
+      user = auth&.user
 
       if user.nil?
         email = data.dig("info", "email")
@@ -54,8 +55,6 @@ module User::SocialApple
 
         email = data.dig("info", "email")
 
-        user.apple_uid ||= data["uid"]
-
         if user.name.blank? && data.dig("info", "name").present?
           sanitized_name = data.dig("info", "name").gsub(User::INVALID_NAME_FOR_EMAIL_DELIVERY_REGEX, "")
           user.name = sanitized_name
@@ -68,6 +67,10 @@ module User::SocialApple
         user.skip_confirmation_notification!
         user.save!
         user.confirm if user.has_unconfirmed_email?
+
+        if data["uid"].present?
+          user.user_external_authentications.find_or_create_by!(provider: "apple", uid: data["uid"])
+        end
 
         user
       end

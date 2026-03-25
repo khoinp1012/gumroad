@@ -211,7 +211,7 @@ describe User::OmniauthCallbacksController do
       user = User.last
       expect(user.name).to eq "Jane Appleseed"
       expect(user.email).to eq "apple-user@example.com"
-      expect(user.apple_uid).to eq "001234.abcdef1234567890abcdef1234567890.1234"
+      expect(user.user_external_authentications.find_by(provider: "apple")&.uid).to eq "001234.abcdef1234567890abcdef1234567890.1234"
       expect(user.global_affiliate).to be_present
     end
 
@@ -241,7 +241,11 @@ describe User::OmniauthCallbacksController do
     end
 
     context "when user is marked as deleted" do
-      let!(:user) { create(:user, apple_uid: "001234.abcdef1234567890abcdef1234567890.1234", deleted_at: Time.current) }
+      let!(:user) { create(:user, deleted_at: Time.current) }
+
+      before do
+        UserExternalAuthentication.create!(user:, provider: "apple", uid: "001234.abcdef1234567890abcdef1234567890.1234")
+      end
 
       it "does not allow user to login" do
         post :apple
@@ -252,7 +256,11 @@ describe User::OmniauthCallbacksController do
     end
 
     context "when user has 2FA" do
-      let!(:user) { create(:user, apple_uid: "001234.abcdef1234567890abcdef1234567890.1234", email: "apple-user@example.com", two_factor_authentication_enabled: true) }
+      let!(:user) do
+        u = create(:user, email: "apple-user@example.com", two_factor_authentication_enabled: true)
+        UserExternalAuthentication.create!(user: u, provider: "apple", uid: "001234.abcdef1234567890abcdef1234567890.1234")
+        u
+      end
 
       it "does not allow user to login with Apple only" do
         post :apple
@@ -277,7 +285,7 @@ describe User::OmniauthCallbacksController do
 
         expect(user.name).to eq "Jane Appleseed"
         expect(user.email).to eq "apple-user@example.com"
-        expect(user.apple_uid).to eq "001234.abcdef1234567890abcdef1234567890.1234"
+        expect(user.user_external_authentications.find_by(provider: "apple")&.uid).to eq "001234.abcdef1234567890abcdef1234567890.1234"
       end
     end
 

@@ -18,11 +18,11 @@ describe User::SocialApple do
     end
 
     context "when no matching user exists" do
-      it "creates a new user" do
+      it "creates a new user with an external authentication" do
         expect { User.find_or_create_for_apple_oauth(apple_data) }.to change { User.count }.by(1)
 
         created_user = User.last
-        expect(created_user.apple_uid).to eq(apple_uid)
+        expect(created_user.user_external_authentications.find_by(provider: "apple")&.uid).to eq(apple_uid)
         expect(created_user.email).to eq("apple-user@example.com")
         expect(created_user.name).to eq("Jane Appleseed")
         expect(created_user.provider).to eq("apple")
@@ -40,8 +40,12 @@ describe User::SocialApple do
       end
     end
 
-    context "when a user with the same apple_uid exists" do
-      let!(:existing_user) { create(:user, apple_uid: apple_uid) }
+    context "when a user with the same apple uid exists" do
+      let!(:existing_user) { create(:user) }
+
+      before do
+        UserExternalAuthentication.create!(user: existing_user, provider: "apple", uid: apple_uid)
+      end
 
       it "returns the existing user without creating a new one" do
         expect { User.find_or_create_for_apple_oauth(apple_data) }.not_to change { User.count }
@@ -54,11 +58,11 @@ describe User::SocialApple do
     context "when a user with the same email exists" do
       let!(:existing_user) { create(:user, email: "apple-user@example.com") }
 
-      it "sets apple_uid on the existing user" do
+      it "links the apple authentication to the existing user" do
         result = User.find_or_create_for_apple_oauth(apple_data)
 
         expect(result).to eq(existing_user)
-        expect(result.apple_uid).to eq(apple_uid)
+        expect(existing_user.user_external_authentications.find_by(provider: "apple")&.uid).to eq(apple_uid)
       end
 
       it "does not create a new user" do
