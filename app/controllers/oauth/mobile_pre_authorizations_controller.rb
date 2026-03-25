@@ -8,7 +8,6 @@ class Oauth::MobilePreAuthorizationsController < ApplicationController
       value: "1",
       expires: 5.minutes.from_now,
       secure: true,
-      httponly: SecureHeaders::OPT_OUT,
       same_site: :none,
     }
 
