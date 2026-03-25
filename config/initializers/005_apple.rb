@@ -11,20 +11,17 @@ APPLE_OAUTH_COOKIE_TTL = 300
 # Apple Sign In sends a POST callback from appleid.apple.com. Because the
 # Rails session cookie is SameSite=Lax, it is not sent with cross-site POSTs
 # and the session is empty on the callback. This means the default
-# session-based nonce and state verification cannot work.
+# session-based nonce verification cannot work.
 #
-# Fix: generate a single random value used as both the OAuth state parameter
-# and the OpenID Connect nonce. Store it in a signed SameSite=None cookie
-# that survives the cross-site POST. On callback, two checks run:
-#
-# 1. State check (callback_phase): cookie value == state POST param.
-#    Binds the callback to the browser that started login (CSRF protection).
-# 2. Nonce check (verify_nonce!): cookie value == id_token nonce claim.
-#    Proves the id_token was issued for this auth request (replay protection).
+# Fix: store the nonce in a signed SameSite=None cookie that survives the
+# cross-site POST. On callback, the gem's verify_nonce! checks that the
+# cookie value matches the nonce claim inside Apple's signed id_token.
+# This proves both that the id_token was issued for this auth request and
+# that the callback arrived in the browser that started login.
 OmniAuth::Strategies::Apple.class_eval do
   def authorize_params
     @apple_oauth_nonce = SecureRandom.urlsafe_base64(32)
-    super.merge(state: @apple_oauth_nonce, nonce: @apple_oauth_nonce)
+    super.merge(nonce: @apple_oauth_nonce)
   end
 
   def request_phase
@@ -34,26 +31,24 @@ OmniAuth::Strategies::Apple.class_eval do
       @apple_oauth_nonce, purpose: :apple_oauth, expires_in: APPLE_OAUTH_COOKIE_TTL
     )
 
-    Rack::Utils.set_cookie_header!(result[1], APPLE_OAUTH_COOKIE_NAME, {
-      value: signed_nonce, path: "/users/auth/apple", httponly: true,
-      secure: request.scheme == "https", same_site: :none, max_age: APPLE_OAUTH_COOKIE_TTL
-    })
+    Rack::Utils.set_cookie_header!(
+      result[1],
+      APPLE_OAUTH_COOKIE_NAME,
+      {
+        value: signed_nonce,
+        path: "/users/auth/apple",
+        httponly: true,
+        secure: request.scheme == "https",
+        same_site: :none,
+        max_age: APPLE_OAUTH_COOKIE_TTL
+      }
+    )
 
     result
   end
 
-  def callback_phase
-    nonce = cookie_nonce
-    state = request.params["state"]
-
-    if nonce.blank? || state.blank? || !ActiveSupport::SecurityUtils.secure_compare(nonce, state)
-      return fail!(:csrf_detected, OmniAuth::Strategies::OAuth2::CallbackError.new(:csrf_detected, "CSRF detected"))
-    end
-
-    super
-  end
-
   private
-    def stored_nonce = cookie_nonce
-    def cookie_nonce = Rails.application.message_verifier("apple_oauth").verified(request.cookies[APPLE_OAUTH_COOKIE_NAME], purpose: :apple_oauth)
+    def stored_nonce
+      Rails.application.message_verifier("apple_oauth").verified(request.cookies[APPLE_OAUTH_COOKIE_NAME], purpose: :apple_oauth)
+    end
 end
