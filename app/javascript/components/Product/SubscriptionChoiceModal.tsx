@@ -49,7 +49,7 @@ export const SubscriptionChoiceModal = ({ purchase, checkoutUrl, open, onClose }
         <Button onClick={onClose}>
           Cancel
         </Button>
-        <NavigationButton href={newSubscriptionHref} color="accent" target="_top">
+        <NavigationButton href={newSubscriptionHref} color="black" target="_top">
           Yes, start a new subscription
         </NavigationButton>
       </div>
