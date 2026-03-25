@@ -2,7 +2,9 @@
 
 class AddAppleUidToUsers < ActiveRecord::Migration[7.1]
   def change
-    add_column :users, :apple_uid, :string
-    add_index :users, :apple_uid
+    change_table :users, bulk: true do |t|
+      t.string :apple_uid
+      t.index :apple_uid
+    end
   end
 end

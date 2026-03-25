@@ -125,8 +125,7 @@ describe "Apple OmniAuth strategy cookie-based nonce patch" do
       # The parent request_phase builds a client_secret from the Apple private
       # key (unavailable in test). Stub the OAuth2 client so super can build
       # the authorize URL without real credentials.
-      mock_client = OAuth2::Client.new("client_id", "fake_secret", site: "https://appleid.apple.com",
-        authorize_url: "/auth/authorize", token_url: "/auth/token")
+      mock_client = OAuth2::Client.new("client_id", "fake_secret", site: "https://appleid.apple.com", authorize_url: "/auth/authorize", token_url: "/auth/token")
       allow(strategy).to receive(:client).and_return(mock_client)
     end
 
@@ -142,7 +141,7 @@ describe "Apple OmniAuth strategy cookie-based nonce patch" do
       expect(cookie_header.downcase).to include("samesite=none")
       expect(cookie_header.downcase).to include("httponly")
 
-      cookie_value = cookie_header.match(/#{APPLE_OAUTH_COOKIE_NAME}=([^;]+)/)[1]
+      cookie_value = cookie_header.match(/#{APPLE_OAUTH_COOKIE_NAME}=([^;]+)/o)[1]
       decoded = Rails.application.message_verifier("apple_oauth").verified(
         Rack::Utils.unescape(cookie_value), purpose: :apple_oauth
       )
@@ -157,7 +156,7 @@ describe "Apple OmniAuth strategy cookie-based nonce patch" do
       result = strategy.request_phase
 
       cookie_header = result[1]["set-cookie"] || result[1]["Set-Cookie"]
-      cookie_value = cookie_header.match(/#{APPLE_OAUTH_COOKIE_NAME}=([^;]+)/)[1]
+      cookie_value = cookie_header.match(/#{APPLE_OAUTH_COOKIE_NAME}=([^;]+)/o)[1]
       decoded = Rails.application.message_verifier("apple_oauth").verified(
         Rack::Utils.unescape(cookie_value), purpose: :apple_oauth
       )
