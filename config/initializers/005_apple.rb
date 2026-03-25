@@ -8,17 +8,9 @@ APPLE_PRIVATE_KEY = GlobalConfig.get("APPLE_WEB_PRIVATE_KEY")
 APPLE_OAUTH_COOKIE_NAME = "_apple_oauth_nonce"
 APPLE_OAUTH_COOKIE_TTL = 300
 
-# Apple Sign In sends a POST callback from appleid.apple.com. Because the
-# Rails session cookie is SameSite=Lax, it is not sent with cross-site POSTs
-# and the session is empty on the callback. This means the default
-# session-based nonce verification cannot work, and omniauth.params (which
-# carries the referer for post-login redirect) is also lost.
-#
-# Fix: store the nonce and request params in a signed SameSite=None cookie
-# that survives the cross-site POST. On callback, the gem's verify_nonce!
-# checks the cookie nonce against the nonce claim inside Apple's signed
-# id_token. This proves both that the id_token was issued for this auth
-# request and that the callback arrived in the browser that started login.
+# Apple's cross-site POST callback drops our SameSite=Lax session cookie,
+# which breaks the default nonce verification and redirect. As a workaround
+# we use a custom SameSite=None cookie to store the nonce and referer.
 OmniAuth::Strategies::Apple.class_eval do
   def authorize_params
     @apple_oauth_nonce = SecureRandom.urlsafe_base64(32)
@@ -54,9 +46,8 @@ OmniAuth::Strategies::Apple.class_eval do
   def callback_phase
     env["omniauth.params"] = cookie_data.except("nonce") if cookie_data
 
-    # Apple sends the `user` POST param as a JSON string. Devise/Warden
-    # hooks expect params[:user] to be a Hash. Parse it in-place so
-    # downstream code (e.g. devise-pwned_password) doesn't blow up.
+    # Apple sends `user` as a JSON string; parse it so Devise sees a hash.
+    # Without this devise-pwned_password raises errors as it assumes user is a hash.
     form_hash = env["rack.request.form_hash"]
     if form_hash&.dig("user").is_a?(String)
       form_hash["user"] = JSON.parse(form_hash["user"]) rescue form_hash["user"]
