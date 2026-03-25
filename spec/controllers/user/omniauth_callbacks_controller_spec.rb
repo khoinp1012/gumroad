@@ -244,7 +244,8 @@ describe User::OmniauthCallbacksController do
       end
 
       it "keeps referral intact" do
-        post :google_oauth2, params: { referer: balance_path }
+        request.env["omniauth.origin"] = balance_path
+        post :google_oauth2
         expect(response).to redirect_to CGI.unescape(two_factor_authentication_path(next: balance_path))
       end
     end

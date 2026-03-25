@@ -122,8 +122,9 @@ class User::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     end
 
     def post_auth_redirect(user)
-      if params[:referer].present? && params[:referer] != "/"
-        params[:referer]
+      referer = params[:referer].presence || request.env["omniauth.origin"]
+      if referer.present? && referer != "/"
+        referer
       else
         safe_redirect_path(helpers.signed_in_user_home(user))
       end
