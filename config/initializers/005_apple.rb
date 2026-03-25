@@ -30,34 +30,23 @@ OmniAuth::Strategies::Apple.class_eval do
   def request_phase
     result = super
 
-    signed_nonce = apple_cookie_verifier.generate(
-      @apple_oauth_nonce,
-      purpose: :apple_oauth,
-      expires_in: APPLE_OAUTH_COOKIE_TTL
+    signed_nonce = Rails.application.message_verifier("apple_oauth").generate(
+      @apple_oauth_nonce, purpose: :apple_oauth, expires_in: APPLE_OAUTH_COOKIE_TTL
     )
 
-    Rack::Utils.set_cookie_header!(
-      result[1],
-      APPLE_OAUTH_COOKIE_NAME,
-      {
-        value: signed_nonce,
-        path: "/users/auth/apple",
-        httponly: true,
-        secure: request.scheme == "https",
-        same_site: :none,
-        max_age: APPLE_OAUTH_COOKIE_TTL
-      }
-    )
+    Rack::Utils.set_cookie_header!(result[1], APPLE_OAUTH_COOKIE_NAME, {
+      value: signed_nonce, path: "/users/auth/apple", httponly: true,
+      secure: request.scheme == "https", same_site: :none, max_age: APPLE_OAUTH_COOKIE_TTL
+    })
 
     result
   end
 
   def callback_phase
-    nonce_from_cookie = verified_cookie_nonce
-    state_from_params = request.params["state"]
+    nonce = cookie_nonce
+    state = request.params["state"]
 
-    if nonce_from_cookie.blank? || state_from_params.blank? ||
-       !ActiveSupport::SecurityUtils.secure_compare(nonce_from_cookie, state_from_params)
+    if nonce.blank? || state.blank? || !ActiveSupport::SecurityUtils.secure_compare(nonce, state)
       return fail!(:csrf_detected, OmniAuth::Strategies::OAuth2::CallbackError.new(:csrf_detected, "CSRF detected"))
     end
 
@@ -65,26 +54,6 @@ OmniAuth::Strategies::Apple.class_eval do
   end
 
   private
-    def session
-      @apple_oauth_session ||= {}
-    end
-
-    def new_nonce
-      nil
-    end
-
-    def stored_nonce
-      verified_cookie_nonce
-    end
-
-    def verified_cookie_nonce
-      @verified_cookie_nonce ||= apple_cookie_verifier.verified(
-        request.cookies[APPLE_OAUTH_COOKIE_NAME],
-        purpose: :apple_oauth
-      )
-    end
-
-    def apple_cookie_verifier
-      Rails.application.message_verifier("apple_oauth")
-    end
+    def stored_nonce = cookie_nonce
+    def cookie_nonce = Rails.application.message_verifier("apple_oauth").verified(request.cookies[APPLE_OAUTH_COOKIE_NAME], purpose: :apple_oauth)
 end
