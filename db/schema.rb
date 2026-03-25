@@ -2547,7 +2547,6 @@ ActiveRecord::Schema[7.1].define(version: 2026_11_19_011937) do
     t.string "notification_content_type", default: "application/x-www-form-urlencoded"
     t.string "google_uid"
     t.integer "purchasing_power_parity_limit"
-    t.string "tiktok_pixel_id"
     t.string "apple_uid"
     t.index ["account_created_ip"], name: "index_users_on_account_created_ip"
     t.index ["apple_uid"], name: "index_users_on_apple_uid"
