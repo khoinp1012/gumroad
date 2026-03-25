@@ -256,12 +256,12 @@ describe User::OmniauthCallbacksController do
 
       it "does not allow user to login with Apple only" do
         post :apple
-        expect(response).to redirect_to CGI.unescape(two_factor_authentication_path(next: dashboard_path))
+        expect(response).to redirect_to two_factor_authentication_path(next: dashboard_path)
       end
 
       it "keeps referral intact" do
         post :apple, params: { referer: balance_path }
-        expect(response).to redirect_to CGI.unescape(two_factor_authentication_path(next: balance_path))
+        expect(response).to redirect_to two_factor_authentication_path(next: balance_path)
       end
     end
 
@@ -349,12 +349,12 @@ describe User::OmniauthCallbacksController do
 
       it "does not allow user to login with Google only" do
         post :google_oauth2
-        expect(response).to redirect_to CGI.unescape(two_factor_authentication_path(next: dashboard_path))
+        expect(response).to redirect_to two_factor_authentication_path(next: dashboard_path)
       end
 
       it "keeps referral intact" do
         post :google_oauth2, params: { referer: balance_path }
-        expect(response).to redirect_to CGI.unescape(two_factor_authentication_path(next: balance_path))
+        expect(response).to redirect_to two_factor_authentication_path(next: balance_path)
       end
     end
 
