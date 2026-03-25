@@ -53,10 +53,23 @@ OmniAuth::Strategies::Apple.class_eval do
 
   def callback_phase
     env["omniauth.params"] = cookie_data.except("nonce") if cookie_data
+
+    # Apple sends the `user` POST param as a JSON string. Devise/Warden
+    # hooks expect params[:user] to be a Hash. Parse it in-place so
+    # downstream code (e.g. devise-pwned_password) doesn't blow up.
+    form_hash = env["rack.request.form_hash"]
+    if form_hash&.dig("user").is_a?(String)
+      form_hash["user"] = JSON.parse(form_hash["user"]) rescue form_hash["user"]
+    end
+
     super
   end
 
   private
+    def user_info
+      @user_info ||= request.params["user"] || {}
+    end
+
     def stored_nonce
       cookie_data&.dig("nonce")
     end

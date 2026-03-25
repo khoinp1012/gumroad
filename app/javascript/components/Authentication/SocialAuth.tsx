@@ -1,7 +1,7 @@
 import { Apple, Google, Stripe } from "@boxicons/react";
 import * as React from "react";
 
-import Mobile from "$app/utils/mobile";
+// import Mobile from "$app/utils/mobile";
 
 import { useFeatureFlags } from "$app/components/FeatureFlags";
 import { SocialAuthButton } from "$app/components/SocialAuthButton";
@@ -30,12 +30,12 @@ export const SocialAuth = () => {
         <Google pack="brands" className="size-5" />
         Google
       </SocialAuthButton>
-      {typeof window !== "undefined" && Mobile.isOnMobileiOSDevice() && !navigator.standalone ? (
-        <SocialAuthButton provider="apple" href={Routes.user_apple_omniauth_authorize_path({ referer: next })}>
-          <Apple pack="brands" className="size-5" />
-          Apple
-        </SocialAuthButton>
-      ) : null}
+      {/*{typeof window !== "undefined" && Mobile.isOnMobileiOSDevice() && !navigator.standalone ? (*/}
+      <SocialAuthButton provider="apple" href={Routes.user_apple_omniauth_authorize_path({ referer: next })}>
+        <Apple pack="brands" className="size-5" />
+        Apple
+      </SocialAuthButton>
+      {/*) : null}*/}
       {showStripe ? (
         <SocialAuthButton
           provider="stripe"

@@ -101,6 +101,10 @@ class User::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       redirect_to settings_payments_path, notice: params[:error_description]
     else
       Rails.logger.info("OAuth failure and request state unexpected: #{params}")
+      Rails.logger.info("OAuth failure message: #{failure_message}")
+      Rails.logger.info("OAuth failure kind: #{request.env['omniauth.error.type']}")
+      Rails.logger.info("OAuth failure strategy: #{request.env['omniauth.error.strategy']&.name}")
+      Rails.logger.info("OAuth failure error: #{request.env['omniauth.error']&.class} - #{request.env['omniauth.error']&.message}")
       super
     end
   end
@@ -120,7 +124,7 @@ class User::OmniauthCallbacksController < Devise::OmniauthCallbacksController
           redirect_to login_path
         elsif @user.email.present?
           sign_in_or_prepare_for_two_factor_auth(@user)
-          safe_redirect_to two_factor_authentication_path(next: post_auth_redirect(@user))
+          redirect_to two_factor_authentication_path(next: post_auth_redirect(@user))
         else
           sign_in @user
           safe_redirect_to post_auth_redirect(@user)
