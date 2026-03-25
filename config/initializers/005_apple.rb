@@ -58,7 +58,12 @@ OmniAuth::Strategies::Apple.class_eval do
 
   private
     def user_info
-      @user_info ||= request.params["user"] || {}
+      user = request.params["user"]
+      @user_info ||= if user.is_a?(String)
+        JSON.parse(user) rescue {}
+      else
+        user || {}
+      end
     end
 
     def stored_nonce

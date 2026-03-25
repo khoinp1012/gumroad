@@ -188,7 +188,7 @@ describe "Apple OmniAuth strategy cookie-based nonce patch" do
   end
 
   describe "#user_info" do
-    it "returns user data from request params" do
+    it "returns hash user data as-is from form-encoded request params" do
       env = build_env(
         "/users/auth/apple/callback",
         input: "user%5BfirstName%5D=Jane&user%5BlastName%5D=Doe"
@@ -198,6 +198,22 @@ describe "Apple OmniAuth strategy cookie-based nonce patch" do
 
       info = strategy.send(:user_info)
       expect(info).to be_a(Hash)
+      expect(info["firstName"]).to eq("Jane")
+    end
+
+    it "parses a JSON string user param without callback_phase form_hash rewrite" do
+      user_json = '{"name":{"firstName":"Jane","lastName":"Appleseed"},"email":"jane@example.com"}'
+      env = build_env(
+        "/users/auth/apple/callback",
+        input: "user=#{Rack::Utils.escape(user_json)}"
+      )
+      Rack::Request.new(env).POST
+      prepare_strategy(env)
+
+      info = strategy.send(:user_info)
+      expect(info).to be_a(Hash)
+      expect(info["email"]).to eq("jane@example.com")
+      expect(info.dig("name", "firstName")).to eq("Jane")
     end
 
     it "returns empty hash when no user data is present" do
