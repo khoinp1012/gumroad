@@ -717,6 +717,24 @@ class Subscription < ApplicationRecord
 
         original_purchase.reschedule_workflow_installments(send_delay:)
 
+        product = link
+        if product.is_tiered_membership? && tier.present? && tier.apply_price_changes_to_existing_memberships?
+          price = tier_price
+          if price.present? && price.price_cents > 0 && price.price_cents != current_subscription_price_cents
+            effective_on = end_time_of_subscription
+            effective_on += period until effective_on >= tier.subscription_price_change_effective_date
+
+            new_plan_change = subscription_plan_changes.create!(
+              tier: tier,
+              recurrence: recurrence,
+              perceived_price_cents: price.price_cents,
+              for_product_price_change: true,
+              effective_on: effective_on
+            )
+            subscription_plan_changes.for_product_price_change.alive.where.not(id: new_plan_change.id).each(&:mark_deleted!)
+          end
+        end
+
         after_commit do
           ActivateIntegrationsWorker.perform_async(original_purchase.id)
         end
